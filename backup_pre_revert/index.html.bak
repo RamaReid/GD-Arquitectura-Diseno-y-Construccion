@@ -6,9 +6,9 @@
   <title>Arquitectura Diseño y Construcción | Viviendas a medida</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=1.1">
-  <link rel="icon" href="assets/img/LogoGD.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
 </head>
 <body>
   <div class="loader-overlay">
@@ -18,12 +18,12 @@
   <header>
     <div class="navbar">
       <div class="brand">
-        <img src="assets/img/logoGD.svg" alt="logoGD" aria-hidden="true">
+        <img src="assets/img/logo.svg" alt="Logo ADC" aria-hidden="true">
         <span class="title">Arquitectura Diseño y Construcción</span>
       </div>
       <nav aria-label="Principal">
-        <ul class="active">
-          <li><a href="index.html">Inicio</a></li>
+        <ul>
+          <li class="active"><a href="index.html">Inicio</a></li>
           <li><a href="projects.html">Proyectos</a></li>
           <li><a href="about.html">Estudio</a></li>
           <li><a href="contact.html">Contacto</a></li>

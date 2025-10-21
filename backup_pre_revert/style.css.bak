@@ -6,17 +6,6 @@
   --light-text: #457b9d;
   --transition-speed: 0.3s;
   --header-height: 80px;
-  --font-heading: 'Libre Baskerville', Georgia, serif;
-  /* Use Libre Baskerville as the global site font (body) so everything inherits the serif */
-  --font-body: var(--font-heading);
-  /* Typography tokens for easy future tweaks */
-  --fw-regular: 400;
-  --fw-medium: 500;
-  --fw-semibold: 600;
-  --fw-bold: 700;
-  --size-h1: clamp(2.5rem, 5vw, 3.5rem);
-  --size-h2: clamp(2rem, 4vw, 3rem);
-  --size-h3: 1.4rem;
 }
 
 * {
@@ -26,25 +15,10 @@
 }
 
 body {
-  font-family: var(--font-body);
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
   background: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
-}
-
-/* Global typography - apply chosen fonts consistently across the project */
-html, body, input, textarea, button, select {
-  font-family: var(--font-body);
-}
-
-h1, h2, h3, h4, h5, h6, .brand .title {
-  font-family: var(--font-heading);
-  font-weight: var(--fw-regular);
-}
-
-/* Ensure navigation, footer and common UI elements inherit the site body font */
-nav, nav a, .navbar, footer, .section-title, .card-content h3, .btn, .values-list li {
-  font-family: var(--font-body);
 }
 
 a {
@@ -86,11 +60,10 @@ header {
 }
 
 .brand .title {
-  font-family: var(--font-heading);
   font-size: 1.3rem;
-  font-weight: 400;
+  font-weight: 600;
   color: var(--primary-color);
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
 }
 
 nav ul {
@@ -130,9 +103,8 @@ nav li.active::after {
 }
 
 .hero h1 {
-  font-size: var(--size-h1);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
   color: var(--primary-color);
-  font-weight: var(--fw-bold);
 }
 
 .hero p {
@@ -175,9 +147,8 @@ nav li.active::after {
 }
 
 .section h2 {
-  font-size: var(--size-h2);
+  font-size: clamp(2rem, 4vw, 3rem);
   margin-bottom: 1.5rem;
-  font-weight: var(--fw-semibold);
 }
 
 .card-grid {
