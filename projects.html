@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyectos | Arquitectura Diseño y Construcción</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+4wTk7wP+tRL6NqxabWWMwBLT1R59OA8dS+4EeRkM=" crossorigin="" />
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <style>
+    .project-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .project-item {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      align-items: center;
+      background: white;
+      padding: 2rem;
+      border-radius: 18px;
+      box-shadow: 0 20px 45px rgba(29, 53, 87, 0.15);
+    }
+
+    .project-item img {
+      width: 100%;
+      border-radius: 14px;
+      height: 220px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div class="loader-overlay">
+    <div class="loader" role="status" aria-label="Cargando"></div>
+  </div>
+
+  <header>
+    <div class="navbar">
+      <div class="brand">
+        <img src="assets/img/logo.svg" alt="Logo ADC" aria-hidden="true">
+        <span class="title">Arquitectura Diseño y Construcción</span>
+      </div>
+      <nav aria-label="Principal">
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li class="active"><a href="projects.html">Proyectos</a></li>
+          <li><a href="about.html">Estudio</a></li>
+          <li><a href="contact.html">Contacto</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <p class="section-title">Portafolio</p>
+      <h1>Casas diseñadas para cada estilo de vida</h1>
+      <p style="max-width:760px;color:var(--light-text);">
+        Descubrí una selección de viviendas personalizadas, desde refugios naturales hasta residencias urbanas inteligentes.
+        Cada proyecto refleja la identidad de quienes lo habitan y nuestra dedicación por el detalle.
+      </p>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+      <div class="project-list">
+        <article class="project-item">
+          <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80" alt="Casa Patagonia">
+          <div>
+            <h2>Casa Patagonia</h2>
+            <p>Una vivienda en Bariloche con vistas panorámicas, revestimientos en madera termo-tratada y estrategias bioclimáticas para aprovechar el sol de invierno.</p>
+            <a class="btn" href="projects/casa-patagonia.html">Ver memoria descriptiva</a>
+          </div>
+        </article>
+        <article class="project-item">
+          <img src="https://images.unsplash.com/photo-1531835551804-73f5c0f3ade0?auto=format&fit=crop&w=900&q=80" alt="Loft Urbano">
+          <div>
+            <h2>Loft Urbano</h2>
+            <p>Reutilización de un galpón industrial en Rosario, transformado en un loft luminoso con patio interior y domótica integral.</p>
+            <a class="btn" href="projects/loft-urbano.html">Ver memoria descriptiva</a>
+          </div>
+        </article>
+        <article class="project-item">
+          <img src="https://images.unsplash.com/photo-1464316325666-63beaf639dbb?auto=format&fit=crop&w=900&q=80" alt="Casa Delta">
+          <div>
+            <h2>Casa Delta</h2>
+            <p>Vivienda elevada sobre pilotes en Tigre, diseñada para convivir con el entorno natural y resistir crecidas estacionales.</p>
+            <a class="btn" href="projects/casa-delta.html">Ver memoria descriptiva</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+      <h2>Ubicación de proyectos</h2>
+      <p style="max-width:720px;color:var(--light-text);">Explorá el mapa interactivo para conocer la distribución geográfica de nuestras obras realizadas en los últimos años.</p>
+      <div id="map" class="map-container" role="region" aria-label="Mapa de proyectos"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h4>ADC</h4>
+        <p>Estudio integral de arquitectura, diseño y construcción de viviendas a medida.</p>
+      </div>
+      <div>
+        <h4>Visítanos</h4>
+        <p>Av. de la Innovación 1234<br>Rosario, Santa Fe</p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <p>info@adc.com.ar<br>+54 341 555 1234</p>
+      </div>
+      <div>
+        <h4>Redes</h4>
+        <p><a href="#">Instagram</a><br><a href="#">LinkedIn</a></p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;font-size:0.9rem;color:rgba(255,255,255,0.7);">© <span data-current-year></span> Arquitectura Diseño y Construcción. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    const map = L.map('map', {
+      scrollWheelZoom: false,
+      zoomSnap: 0.25
+    }).setView([-34.6, -58.45], 5.2);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const projects = [
+      {
+        name: 'Casa Patagonia',
+        location: 'Bariloche, Río Negro',
+        coords: [-41.133472, -71.310278]
+      },
+      {
+        name: 'Loft Urbano',
+        location: 'Rosario, Santa Fe',
+        coords: [-32.944243, -60.650539]
+      },
+      {
+        name: 'Casa Delta',
+        location: 'Tigre, Buenos Aires',
+        coords: [-34.4272, -58.5797]
+      }
+    ];
+
+    projects.forEach(project => {
+      L.marker(project.coords)
+        .addTo(map)
+        .bindPopup(`<strong>${project.name}</strong><br>${project.location}`);
+    });
+  </script>
+</body>
+</html>
