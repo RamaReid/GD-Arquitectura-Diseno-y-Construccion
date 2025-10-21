@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto | Arquitectura Diseño y Construcción</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+</head>
+<body>
+  <div class="loader-overlay">
+    <div class="loader" role="status" aria-label="Cargando"></div>
+  </div>
+
+  <header>
+    <div class="navbar">
+      <div class="brand">
+        <img src="assets/img/logo.svg" alt="Logo ADC" aria-hidden="true">
+        <span class="title">Arquitectura Diseño y Construcción</span>
+      </div>
+      <nav aria-label="Principal">
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="projects.html">Proyectos</a></li>
+          <li><a href="about.html">Estudio</a></li>
+          <li class="active"><a href="contact.html">Contacto</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <p class="section-title">Contacto</p>
+      <h1>Contanos sobre tu próximo proyecto</h1>
+      <div class="info-grid" style="margin-top:2rem;align-items:start;">
+        <div class="contact-card">
+          <div>
+            <h2>Agenda una reunión</h2>
+            <p>Completá el formulario y nuestro equipo se pondrá en contacto en menos de 24 horas hábiles.</p>
+          </div>
+          <form>
+            <label>
+              Nombre y apellido
+              <input type="text" name="name" placeholder="Tu nombre" required>
+            </label>
+            <label>
+              Email
+              <input type="email" name="email" placeholder="nombre@correo.com" required>
+            </label>
+            <label>
+              Teléfono
+              <input type="tel" name="phone" placeholder="Código de área + número">
+            </label>
+            <label>
+              Tipo de proyecto
+              <select name="project-type" required>
+                <option value="" disabled selected>Seleccioná una opción</option>
+                <option>Casa nueva</option>
+                <option>Ampliación</option>
+                <option>Refuncionalización</option>
+                <option>Consultoría</option>
+              </select>
+            </label>
+            <label>
+              Contanos más
+              <textarea name="message" placeholder="Metros cuadrados, ubicación y expectativas"></textarea>
+            </label>
+            <button type="submit" class="btn">Enviar consulta</button>
+          </form>
+        </div>
+        <div>
+          <h2>Datos de contacto</h2>
+          <p style="margin-bottom:1rem;">También podés escribirnos o visitarnos en nuestro estudio central en Rosario.</p>
+          <p><strong>Dirección:</strong> Av. de la Innovación 1234, Rosario, Santa Fe</p>
+          <p><strong>Teléfono:</strong> +54 341 555 1234</p>
+          <p><strong>Email:</strong> hola@adc.com.ar</p>
+          <p><strong>Horario:</strong> Lunes a viernes de 9 a 18 h</p>
+          <div style="margin-top:2rem;">
+            <iframe title="Ubicación estudio ADC" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3283.6984398229475!2d-60.65132968458623!3d-32.93567388092396!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95b65498764d5b35%3A0x2d83d9e06d2d9e8b!2sRosario%2C%20Santa%20Fe%2C%20Argentina!5e0!3m2!1ses!2sar!4v1700000000000!5m2!1ses!2sar" width="100%" height="320" style="border:0;border-radius:18px;box-shadow:0 20px 45px rgba(29,53,87,0.15);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h4>ADC</h4>
+        <p>Estudio integral de arquitectura, diseño y construcción de viviendas a medida.</p>
+      </div>
+      <div>
+        <h4>Visítanos</h4>
+        <p>Av. de la Innovación 1234<br>Rosario, Santa Fe</p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <p>info@adc.com.ar<br>+54 341 555 1234</p>
+      </div>
+      <div>
+        <h4>Redes</h4>
+        <p><a href="#">Instagram</a><br><a href="#">LinkedIn</a></p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;font-size:0.9rem;color:rgba(255,255,255,0.7);">© <span data-current-year></span> Arquitectura Diseño y Construcción. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
