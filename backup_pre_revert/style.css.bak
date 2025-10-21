@@ -6,17 +6,6 @@
   --light-text: #457b9d;
   --transition-speed: 0.3s;
   --header-height: 80px;
-  --font-heading: 'Libre Baskerville', Georgia, serif;
-  /* Use Libre Baskerville as the global site font (body) so everything inherits the serif */
-  --font-body: var(--font-heading);
-  /* Typography tokens for easy future tweaks */
-  --fw-regular: 400;
-  --fw-medium: 500;
-  --fw-semibold: 600;
-  --fw-bold: 700;
-  --size-h1: clamp(2.5rem, 5vw, 3.5rem);
-  --size-h2: clamp(2rem, 4vw, 3rem);
-  --size-h3: 1.4rem;
 }
 
 * {
@@ -26,25 +15,10 @@
 }
 
 body {
-  font-family: var(--font-body);
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
   background: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
-}
-
-/* Global typography - apply chosen fonts consistently across the project */
-html, body, input, textarea, button, select {
-  font-family: var(--font-body);
-}
-
-h1, h2, h3, h4, h5, h6, .brand .title {
-  font-family: var(--font-heading);
-  font-weight: var(--fw-regular);
-}
-
-/* Ensure navigation, footer and common UI elements inherit the site body font */
-nav, nav a, .navbar, footer, .section-title, .card-content h3, .btn, .values-list li {
-  font-family: var(--font-body);
 }
 
 a {
@@ -77,45 +51,19 @@ header {
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .brand img {
-  width: 96px;
-  height: 96px;
+  width: 48px;
+  height: 48px;
 }
 
 .brand .title {
-  font-family: var(--font-heading);
   font-size: 1.3rem;
-  font-weight: 400;
+  font-weight: 600;
   color: var(--primary-color);
-  letter-spacing: 1.2px;
-}
-
-/* Make the logo behave like a button/link with visible focus */
-.brand-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.brand-link:focus {
-  outline: 3px solid rgba(29,53,87,0.12);
-  outline-offset: 4px;
-}
-
-/* Hover/focus scale for logo */
-.brand-link img {
-  transition: transform 180ms ease;
-  transform-origin: center center;
-}
-
-.brand-link:hover img,
-.brand-link:focus img,
-.brand-link:focus-visible img {
-  transform: scale(1.2);
+  letter-spacing: 1px;
 }
 
 nav ul {
@@ -155,9 +103,8 @@ nav li.active::after {
 }
 
 .hero h1 {
-  font-size: var(--size-h1);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
   color: var(--primary-color);
-  font-weight: var(--fw-bold);
 }
 
 .hero p {
@@ -200,9 +147,8 @@ nav li.active::after {
 }
 
 .section h2 {
-  font-size: var(--size-h2);
+  font-size: clamp(2rem, 4vw, 3rem);
   margin-bottom: 1.5rem;
-  font-weight: var(--fw-semibold);
 }
 
 .card-grid {
