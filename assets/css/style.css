@@ -250,7 +250,7 @@ nav li.active::after {
     background: transparent;
     box-shadow: none;
     padding: 0;
-    gap: 0.8rem;
+    gap: 0.4rem; /* reducido a la mitad para pantallas angostas */
     white-space: nowrap;
     overflow: hidden;
     justify-content: center;
@@ -266,7 +266,7 @@ nav li.active::after {
   }
 
   /* Mejora área táctil de los enlaces en móvil sin cambiar tipografía */
-  nav a { padding: 0.6rem 0.5rem; }
+  nav a { padding: 0.4rem 0.25rem; }
 
   /* Estado abierto: se expande en 1s de derecha a izquierda */
   .navbar.is-open nav ul {
@@ -283,6 +283,37 @@ nav li.active::after {
   .nav-toggle:hover,
   .nav-toggle:focus,
   .nav-toggle:focus-visible { transform: scale(1.1); }
+}
+
+/* Pantallas muy pequeñas: ajustes extras para mantener todo en una línea */
+@media (max-width: 460px) {
+  .navbar {
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  /* Logo aún más compacto */
+  .brand img { width: 56px; height: 56px; }
+  
+  /* Reducir gap y padding al mínimo */
+  nav ul { gap: 0.25rem; }
+  nav a { 
+    padding: 0.3rem 0.15rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Botón hamburguesa más compacto */
+  .nav-toggle { 
+    width: 32px; 
+    height: 32px; 
+  }
+  .nav-toggle .hamburger,
+  .nav-toggle .hamburger::before,
+  .nav-toggle .hamburger::after {
+    width: 18px;
+  }
+  
+  .nav-area { gap: 0.5rem; }
 }
 
 .hero {

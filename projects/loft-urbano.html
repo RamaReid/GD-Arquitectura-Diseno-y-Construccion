@@ -6,9 +6,9 @@
   <title>Loft Urbano | Arquitectura Diseño y Construcción</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css?v=1.2">
+  <link rel="icon" href="../assets/img/LogoGD.svg" type="image/svg+xml">
 </head>
 <body>
   <div class="loader-overlay">
@@ -18,17 +18,25 @@
   <header>
     <div class="navbar">
       <div class="brand">
-        <img src="../assets/img/logo.svg" alt="Logo ADC" aria-hidden="true">
-        <span class="title">Arquitectura Diseño y Construcción</span>
+        <a href="../index.html" class="brand-link" aria-label="Ir al inicio">
+          <img src="../assets/img/logoGD.svg" alt="Logo Arquitectura Diseño y Construcción">
+        </a>
+        <span class="title">Arquitectura, Diseño y Construcción</span>
       </div>
-      <nav aria-label="Principal">
-        <ul>
-          <li><a href="../index.html">Inicio</a></li>
-          <li class="active"><a href="../projects.html">Proyectos</a></li>
-          <li><a href="../about.html">Estudio</a></li>
-          <li><a href="../contact.html">Contacto</a></li>
-        </ul>
-      </nav>
+      <!-- Área derecha: botón y menú (se ubican en la segunda columna en móvil) -->
+      <div class="nav-area">
+        <nav aria-label="Principal">
+          <ul id="primary-nav">
+            <li class="active"><a href="../projects.html">Proyectos</a></li>
+            <li><a href="../about.html">Estudio</a></li>
+            <li><a href="../contact.html">Contacto</a></li>
+          </ul>
+        </nav>
+        <!-- Botón de menú hamburguesa para móvil -->
+        <button class="nav-toggle" aria-controls="primary-nav" aria-expanded="false" aria-label="Abrir menú">
+          <span class="hamburger" aria-hidden="true"></span>
+        </button>
+      </div>
     </div>
   </header>
 
