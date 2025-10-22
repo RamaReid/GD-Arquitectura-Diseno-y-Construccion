@@ -176,6 +176,7 @@ nav ul {
   display: flex;
   list-style: none;
   gap: 0.8rem;
+  flex-wrap: nowrap;
 }
 
 /* Alineación del nav y offset vertical controlado por --nav-offset */
