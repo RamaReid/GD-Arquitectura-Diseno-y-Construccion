@@ -6,6 +6,8 @@
   --light-text: #457b9d;
   --transition-speed: 0.3s;
   --header-height: 80px;
+  /* Altura/offset vertical del nav: ajusta este valor para bajar/subir el menú */
+  --nav-offset: 8px;
   --font-heading: 'Libre Baskerville', Georgia, serif;
   /* Use Libre Baskerville as the global site font (body) so everything inherits the serif */
   --font-body: var(--font-heading);
@@ -69,7 +71,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 3rem;
+  padding: 1rem 3rem; /* Ajustado para más altura */
   max-width: 1200px;
   margin: auto;
 }
@@ -121,7 +123,13 @@ header {
 nav ul {
   display: flex;
   list-style: none;
-  gap: 1.5rem;
+  gap: 0.8rem;
+}
+
+/* Alineación del nav y offset vertical controlado por --nav-offset */
+nav {
+  align-self: center;
+  margin-top: var(--nav-offset);
 }
 
 nav li {
@@ -142,6 +150,21 @@ nav li::after {
 nav li:hover::after,
 nav li.active::after {
   width: 100%;
+}
+
+/* Restore centered header layout on small screens to avoid layout issues */
+@media (max-width: 600px) {
+  .navbar {
+    align-items: center;
+  }
+  nav {
+    align-self: auto;
+    /* Evita offset en móviles para mantener el header compacto */
+    margin-top: 0;
+  }
+  nav ul {
+    gap: 1rem;
+  }
 }
 
 .hero {
