@@ -58,6 +58,58 @@ a:hover {
   color: var(--accent-color);
 }
 
+/* Hover/focus de enlaces del nav: escalan como el logo/menú (1.2x) */
+nav a {
+  display: inline-block; /* necesario para que el transform no afecte al layout del contenedor */
+  transition: transform 180ms ease;
+  transform-origin: center center;
+}
+nav a:hover,
+nav a:focus,
+nav a:focus-visible {
+  transform: scale(1.2);
+}
+
+/* Botón de menú hamburguesa (oculto por defecto; visible solo en móvil) */
+.nav-toggle {
+  display: none;
+  appearance: none;
+  border: none;
+  background: transparent;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.nav-toggle .hamburger,
+.nav-toggle .hamburger::before,
+.nav-toggle .hamburger::after {
+  content: '';
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text-color);
+  border-radius: 2px;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+.nav-toggle .hamburger { position: relative; }
+.nav-toggle .hamburger::before { position: absolute; top: -6px; left: 0; }
+.nav-toggle .hamburger::after { position: absolute; top: 6px; left: 0; }
+
+/* Estado activo: convierte las líneas en una X */
+.nav-toggle.is-active .hamburger { transform: rotate(45deg); }
+.nav-toggle.is-active .hamburger::before { transform: rotate(90deg); }
+.nav-toggle.is-active .hamburger::after { opacity: 0; }
+
+/* Efecto hover/focus del botón hamburguesa: escala como el logo */
+.nav-toggle { transition: transform 180ms ease; }
+.nav-toggle:hover,
+.nav-toggle:focus,
+.nav-toggle:focus-visible { transform: scale(1.2); }
+
 header {
   position: sticky;
   top: 0;
@@ -152,19 +204,84 @@ nav li.active::after {
   width: 100%;
 }
 
-/* Restore centered header layout on small screens to avoid layout issues */
-@media (max-width: 600px) {
+/* Mobile-only header tweaks + menú hamburguesa (2 columnas) */
+/* Mobile/Tablet header tweaks + menú hamburguesa (2 columnas) */
+@media (max-width: 768px) {
   .navbar {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr; /* logo mínimo, nav ocupa el resto */
+    align-items: stretch; /* ambas columnas misma altura */
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+  }
+
+  /* Logo más compacto en móvil */
+  .brand img { width: 72px; height: 72px; }
+
+  /* Oculta el título en móvil */
+  .brand .title { display: none; }
+
+  /* Área de navegación (columna 2): contiene menú + botón en la misma línea */
+  .nav-area {
+    grid-column: 2 / 3;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    gap: 0.75rem;
   }
+  .brand { grid-column: 1 / 2; display: flex; align-items: center; }
+  .nav-toggle { display: inline-flex; }
+
   nav {
-    align-self: auto;
-    /* Evita offset en móviles para mantener el header compacto */
-    margin-top: 0;
+    align-self: center;
+    /* Baja el nav en móvil al mismo offset que escritorio */
+    margin-top: var(--nav-offset);
+    flex: 1 1 auto;
+    min-width: 0;
   }
+
+  /* Menú en móvil: colapsado por defecto, se despliega desde el botón hacia la izquierda */
   nav ul {
-    gap: 1rem;
+    display: flex;
+    position: static;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    gap: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap; /* evita salto a otra línea */
+    width: 100%; /* mantiene ancho constante */
+    /* Estado oculto por defecto (colapsado) */
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: right center; /* desde el botón hacia la izquierda */
+    pointer-events: none;
+    transition: transform 1s ease, opacity 1s ease;
   }
+
+  /* Mejora área táctil de los enlaces en móvil sin cambiar tipografía */
+  nav a { padding: 0.6rem 0.5rem; }
+
+  /* Estado abierto: se expande en 1s de derecha a izquierda */
+  .navbar.is-open nav ul {
+    opacity: 1;
+    transform: scaleX(1);
+    pointer-events: auto;
+  }
+  
+  /* Limitar hover en pantallas chicas para evitar saltos de layout */
+  nav a:hover,
+  nav a:focus,
+  nav a:focus-visible { transform: scale(1.1); }
+  
+  .nav-toggle:hover,
+  .nav-toggle:focus,
+  .nav-toggle:focus-visible { transform: scale(1.1); }
 }
 
 .hero {
