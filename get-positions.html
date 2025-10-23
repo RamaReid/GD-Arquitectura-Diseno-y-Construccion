@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medir Posiciones</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .info {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .info h2 {
+            margin-top: 0;
+            color: #1d3557;
+        }
+        .info p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .info strong {
+            color: #e63946;
+        }
+        button {
+            background: #1d3557;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        button:hover {
+            background: #457b9d;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Medidor de Posiciones del Logo</h1>
+    <p>Abre este archivo junto con tu index.html y presiona el botón para obtener las medidas.</p>
+    
+    <button onclick="getPositions()">📏 Obtener Medidas del Logo</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function getPositions() {
+            // Abrir index.html en otra ventana
+            const win = window.open('index.html', '_blank');
+            
+            // Esperar a que cargue
+            win.addEventListener('load', () => {
+                setTimeout(() => {
+                    // Obtener el logo del header
+                    const logo = win.document.querySelector('.brand img');
+                    
+                    if (logo) {
+                        const rect = logo.getBoundingClientRect();
+                        
+                        // Obtener el loader
+                        const loader = win.document.querySelector('.loader');
+                        const loaderRect = loader ? loader.getBoundingClientRect() : null;
+                        
+                        // Obtener dimensiones del viewport
+                        const vw = win.innerWidth;
+                        const vh = win.innerHeight;
+                        
+                        // Mostrar resultados
+                        const resultsDiv = document.getElementById('results');
+                        resultsDiv.innerHTML = `
+                            <div class="info">
+                                <h2>📍 Logo en el Header</h2>
+                                <p><strong>Posición desde viewport (esquina superior izquierda):</strong></p>
+                                <p>• X (left): <strong>${rect.left}px</strong></p>
+                                <p>• Y (top): <strong>${rect.top}px</strong></p>
+                                <p><strong>Tamaño del logo:</strong></p>
+                                <p>• Ancho: <strong>${rect.width}px</strong></p>
+                                <p>• Alto: <strong>${rect.height}px</strong></p>
+                                <p><strong>Centro del logo:</strong></p>
+                                <p>• X: <strong>${rect.left + rect.width/2}px</strong></p>
+                                <p>• Y: <strong>${rect.top + rect.height/2}px</strong></p>
+                            </div>
+                            
+                            ${loaderRect ? `
+                            <div class="info">
+                                <h2>🎯 Loader (estado inicial)</h2>
+                                <p><strong>Posición actual:</strong></p>
+                                <p>• X (left): <strong>${loaderRect.left}px</strong></p>
+                                <p>• Y (top): <strong>${loaderRect.top}px</strong></p>
+                                <p><strong>Tamaño del loader:</strong></p>
+                                <p>• Ancho: <strong>${loaderRect.width}px</strong></p>
+                                <p>• Alto: <strong>${loaderRect.height}px</strong></p>
+                                <p><strong>Centro del loader:</strong></p>
+                                <p>• X: <strong>${loaderRect.left + loaderRect.width/2}px</strong> (debería ser ${vw/2}px)</p>
+                                <p>• Y: <strong>${loaderRect.top + loaderRect.height/2}px</strong> (debería ser ${vh/2}px)</p>
+                            </div>
+                            ` : ''}
+                            
+                            <div class="info">
+                                <h2>📐 Viewport</h2>
+                                <p>• Ancho: <strong>${vw}px</strong> (50vw = ${vw/2}px)</p>
+                                <p>• Alto: <strong>${vh}px</strong> (50vh = ${vh/2}px)</p>
+                            </div>
+                            
+                            <div class="info">
+                                <h2>🎨 Cálculos para CSS</h2>
+                                <p><strong>Para mover el CENTRO del loader al CENTRO del logo:</strong></p>
+                                <p>• translateX: <strong>${(rect.left + rect.width/2) - vw/2}px</strong></p>
+                                <p>• translateY: <strong>${(rect.top + rect.height/2) - vh/2}px</strong></p>
+                                ${loaderRect ? `
+                                <p><strong>Scale necesario:</strong></p>
+                                <p>• scale: <strong>${rect.width / loaderRect.width}</strong> (${rect.width}px / ${loaderRect.width}px)</p>
+                                ` : ''}
+                            </div>
+                        `;
+                        
+                        // Cerrar la ventana después de 30 segundos
+                        setTimeout(() => {
+                            if (confirm('¿Cerrar la ventana de index.html?')) {
+                                win.close();
+                            }
+                        }, 30000);
+                    } else {
+                        alert('No se encontró el logo en el header. Asegúrate de que index.html esté cargado.');
+                    }
+                }, 1000);
+            });
+        }
+    </script>
+</body>
+</html>

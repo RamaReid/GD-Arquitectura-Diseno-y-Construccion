@@ -1,0 +1,22 @@
+To ensure the last arc (P3->P4) approaches P4 from the LEFT and never crosses P4's vertical, adjust computeTangentArcWithBoth:
+
+Replace inside segmentIndex===3 block:
+
+// Desde P3: subir vertical, pero no más de la distancia vertical hasta P4
+controlDist1 = Math.abs(dy) * 0.55;
+// Desde P4: ir horizontal izquierda, distancia moderada
+controlDist2 = Math.abs(dx) * 0.55;
+
+const c1x_temp = p1.x + tx1 * controlDist1;
+const c1y_temp = p1.y + ty1 * controlDist1;
+const c2x_temp = p2.x - tx2 * controlDist2;
+const c2y_temp = p2.y - ty2 * controlDist2;
+
+// Limitar para no superar vertical de P4 ni horizontal de P4
+const margin = 1;
+const c2x = Math.min(c2x_temp, p2.x - margin); // forzar control 2 a la izquierda de P4
+const c2y = Math.max(c2y_temp, p2.y);          // no bajar más que P4
+const c1x = Math.min(c1x_temp, c2x);           // mantener C1 también a la izquierda de C2/P4
+const c1y = c1y_temp;
+
+return { path: ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}` };

@@ -19,6 +19,18 @@
   --size-h1: clamp(2.5rem, 5vw, 3.5rem);
   --size-h2: clamp(2rem, 4vw, 3rem);
   --size-h3: 1.4rem;
+  
+  /* Variables para transición del loader al header */
+  --logo-size-desktop: 96px;
+  --logo-size-tablet: 72px;
+  --logo-size-mobile: 56px;
+  --header-padding-x-desktop: 3rem;
+  --header-padding-x-tablet: 1rem;
+  --header-padding-x-mobile: 0.75rem;
+  --header-padding-y-desktop: 1rem;
+  --header-padding-y-tablet: 0.6rem;
+  --header-padding-y-mobile: 0.5rem;
+  --loader-initial-size: min(80vw, 400px);
 }
 
 * {
@@ -123,7 +135,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 3rem; /* Ajustado para más altura */
+  padding: var(--header-padding-y-desktop) var(--header-padding-x-desktop);
   max-width: 1200px;
   margin: auto;
 }
@@ -135,8 +147,8 @@ header {
 }
 
 .brand img {
-  width: 96px;
-  height: 96px;
+  width: var(--logo-size-desktop);
+  height: var(--logo-size-desktop);
 }
 
 .brand .title {
@@ -214,11 +226,14 @@ nav li.active::after {
     grid-template-columns: auto 1fr; /* logo mínimo, nav ocupa el resto */
     align-items: stretch; /* ambas columnas misma altura */
     gap: 0.75rem;
-    padding: 0.6rem 1rem;
+    padding: var(--header-padding-y-tablet) var(--header-padding-x-tablet);
   }
 
   /* Logo más compacto en móvil */
-  .brand img { width: 72px; height: 72px; }
+  .brand img { 
+    width: var(--logo-size-tablet);
+    height: var(--logo-size-tablet);
+  }
 
   /* Oculta el título en móvil */
   .brand .title { display: none; }
@@ -288,12 +303,15 @@ nav li.active::after {
 /* Pantallas muy pequeñas: ajustes extras para mantener todo en una línea */
 @media (max-width: 460px) {
   .navbar {
-    padding: 0.5rem 0.75rem;
+    padding: var(--header-padding-y-mobile) var(--header-padding-x-mobile);
     gap: 0.5rem;
   }
   
   /* Logo aún más compacto */
-  .brand img { width: 56px; height: 56px; }
+  .brand img { 
+    width: var(--logo-size-mobile);
+    height: var(--logo-size-mobile);
+  }
   
   /* Reducir gap y padding al mínimo */
   nav ul { gap: 0.25rem; }
@@ -552,15 +570,19 @@ textarea {
   background: var(--accent-color);
 }
 
+/* ============================================
+   LOADER / TRANSICIÓN ENTRE PÁGINAS
+   ============================================ */
 .loader-overlay {
   position: fixed;
   inset: 0;
-  background: white;
+  background: var(--background-color);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  pointer-events: none;
 }
 
 .loader-overlay.hidden {
@@ -568,27 +590,224 @@ textarea {
   visibility: hidden;
 }
 
+.loader-overlay:not(.hidden) {
+  pointer-events: all;
+}
+
+/* Contenedor del SVG animado */
 .loader {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, var(--accent-color), var(--primary-color), #2a9d8f, var(--accent-color));
+  width: var(--loader-initial-size);
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  animation: spin 1.5s linear infinite;
+  will-change: transform;
 }
 
-.loader::after {
-  content: '';
-  position: absolute;
-  inset: 12px;
-  background: white;
-  border-radius: 50%;
+/* Animación de latido del corazón */
+.loader.heartbeat {
+  animation: heartbeat 0.8s ease-in-out 2;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+/* Transición hacia el header con trayectoria en arco */
+.loader.move-to-header {
+  animation: moveToHeader 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes moveToHeader {
+  0% {
+    transform: translate(0, 0) scale(1);
   }
+  100% {
+    /* Valores exactos medidos desde el viewport */
+    /* Logo en header está en (12px, 8px) desde esquina superior izquierda */
+    /* Loader centrado necesita moverse (-145px, -329px) para que su centro coincida con el centro del logo */
+    transform: translate(-145px, -329px) scale(1);
+  }
+}
+
+/* Versiones responsive con referencias exactas */
+@media (max-width: 768px) {
+  .loader.move-to-header {
+    animation: moveToHeaderTablet 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+  
+  @keyframes moveToHeaderTablet {
+    0% {
+      width: var(--loader-initial-size);
+      transform: translate(0, 0);
+    }
+    60% {
+      transform: translate(calc(-40vw), calc(-35vh));
+    }
+    100% {
+      width: var(--logo-size-tablet);
+      transform: translate(
+        calc(-50vw + var(--header-padding-x-tablet) + var(--logo-size-tablet) / 2),
+        calc(-50vh + var(--header-padding-y-tablet) + var(--logo-size-tablet) / 2)
+      );
+    }
+  }
+}
+
+@media (max-width: 460px) {
+  .loader.move-to-header {
+    animation: moveToHeaderMobile 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+  
+  @keyframes moveToHeaderMobile {
+    0% {
+      width: var(--loader-initial-size);
+      transform: translate(0, 0);
+    }
+    60% {
+      transform: translate(calc(-40vw), calc(-30vh));
+    }
+    100% {
+      width: var(--logo-size-mobile);
+      transform: translate(
+        calc(-50vw + var(--header-padding-x-mobile) + var(--logo-size-mobile) / 2),
+        calc(-50vh + var(--header-padding-y-mobile) + var(--logo-size-mobile) / 2)
+      );
+    }
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.15);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.15);
+  }
+  56% {
+    transform: scale(1);
+  }
+}
+
+.loader svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Estilos para el logo animado */
+.loader .str0 {
+  stroke: black;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 22.9256;
+  stroke-dasharray: 5 3 1 3;
+  fill: none;
+}
+
+.loader .str1 {
+  stroke: black;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 22.9256;
+  fill: none;
+}
+
+.loader .str2 {
+  stroke: #6E6E6E;
+  stroke-width: 0.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 22.9256;
+  fill: none;
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: drawGrey 2s ease-out forwards;
+  animation-delay: 1s;
+}
+
+.loader .str3 {
+  stroke: #FF0009;
+  stroke-width: 0.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 22.9256;
+  fill: none;
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: drawGinner 0.7s ease-in-out forwards;
+  animation-delay: 1s;
+}
+
+.loader .str4 {
+  stroke: #FF0009;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 22.9256;
+  fill: none;
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: drawGouter 0.8s ease-in-out forwards;
+  animation-delay: 1.2s;
+}
+
+.loader .str5 {
+  stroke: #34369E;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 22.9256;
+  fill: none;
+  stroke-dasharray: 3000;
+  stroke-dashoffset: 3000;
+  animation: drawD 1s ease-in-out forwards;
+  animation-delay: 1.8s;
+}
+
+/* Animaciones de máscara */
+@keyframes revealX { from { x:-210px; } to { x:0; } }
+@keyframes revealY { from { y:-170px; } to { y:0; } }
+@keyframes revealLeftToRight { from { x:-210px; } to { x:0; } }
+@keyframes revealTopToBottom { from { y:-170px; } to { y:0; } }
+@keyframes revealRightToLeft { from { x:210px; } to { x:0; } }
+@keyframes revealBottomToTop { from { y:170px; } to { y:0; } }
+
+/* Animaciones de dibujo */
+@keyframes drawGrey { to { stroke-dashoffset: 0; } }
+@keyframes drawGinner { to { stroke-dashoffset: 0; } }
+@keyframes drawGouter { to { stroke-dashoffset: 0; } }
+@keyframes drawD { to { stroke-dashoffset: 0; } }
+
+/* Asignación de animaciones a rectángulos */
+.loader #rectX { animation: revealX 0.6s cubic-bezier(0.55, 0.08, 0.44, 0.99) forwards; }
+.loader #rectY { animation: revealY 0.6s cubic-bezier(0.55, 0.08, 0.44, 0.99) forwards; animation-delay: 0.4s; }
+.loader #rectTop    { animation: revealLeftToRight 0.3s ease-in-out forwards 0.8s; }
+.loader #rectRight  { animation: revealTopToBottom 0.3s ease-in-out forwards 1s; }
+.loader #rectBottom { animation: revealRightToLeft 0.3s ease-in-out forwards 1.2s; }
+.loader #rectLeft   { animation: revealBottomToTop 0.3s ease-in-out forwards 1.4s; }
+
+/* Fade para transiciones suaves de página */
+body.page-transition {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+body.page-loaded {
+  opacity: 1;
+}
+
+/* Header inicialmente oculto durante la carga */
+body:not(.page-loaded) header {
+  opacity: 0;
+}
+
+body.page-loaded header {
+  opacity: 1;
+  transition: opacity 0.5s ease 0.3s;
 }
 
 @media (max-width: 768px) {

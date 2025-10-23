@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planner de Arco Áurico</title>
+  <link rel="icon" href="assets/img/logoGD.svg" type="image/svg+xml" />
+  <style>
+    :root{
+      --logo-size-desktop: 96px;
+      --header-padding-x-desktop: 3rem;
+      --header-padding-y-desktop: 1rem;
+      --loader-initial-size: min(80vw, 400px);
+      --bg: #f1faee;
+      --axis-pi: rgba(230,57,70,0.95);   /* rojo */
+      --axis-pf: rgba(69,123,157,0.95);  /* azul */
+      --grid-vertical: rgba(29,53,87,0.35); /* líneas de retícula vertical */
+      --grid-horizontal: rgba(29,53,87,0.35); /* líneas de retícula horizontal */
+      --ref-color: #2a9d8f; /* marcador de referencia */
+      --ref2-color: #e76f51; /* segundo marcador */
+      --ref3-color: #6c5ce7; /* tercer marcador */
+      --ref4-color: #1f7aeb; /* cuarto marcador (PF) */
+  --ref5-color: #0ead69; /* punto intermedio P35 */
+      --ref0-color: #e63946; /* marcador PI (punto inicial) */
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: #1d3557;
+      overflow: hidden;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: transparent;
+    }
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--header-padding-y-desktop) var(--header-padding-x-desktop);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .brand { display: flex; align-items: center; gap: .5rem; }
+    .brand img { width: var(--logo-size-desktop); height: var(--logo-size-desktop); display:block; }
+
+    .stage {
+      position: relative;
+      width: 100vw; height: calc(100vh - 72px);
+      margin: 0; padding: 0;
+      overflow: hidden;
+    }
+    .logo-inicial {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: var(--loader-initial-size); height: var(--loader-initial-size);
+      display: grid; place-items: center;
+    }
+    .logo-inicial img { width: 100%; height: auto; display:block; }
+
+    /* Medianeras PI (centradas en la stage) */
+    .axis-pi-x, .axis-pi-y { position: absolute; pointer-events: none; }
+    .axis-pi-x { left: 0; right: 0; height: 2px; top: 50%; transform: translateY(-1px); background: var(--axis-pi); }
+    .axis-pi-y { top: 0; bottom: 0; width: 2px; left: 50%; transform: translateX(-1px); background: var(--axis-pi); }
+
+    /* Medianeras PF (centradas en el logo del header) */
+    .pf-axis-x, .pf-axis-y { position: fixed; pointer-events: none; z-index: 20; }
+    .pf-axis-y { top: 0; bottom: 0; width: 2px; left: 0; background: var(--axis-pf); }
+    .pf-axis-x { left: 0; right: 0; height: 2px; top: 0; background: var(--axis-pf); }
+
+    /* Retícula vertical basada en distancia PI↔PF */
+    .vertical-grid { position: fixed; inset: 0; pointer-events: none; z-index: 15; }
+    .vertical-grid .vline { position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--grid-vertical); }
+
+    /* Retícula horizontal basada en distancia PI↔PF */
+    .horizontal-grid { position: fixed; inset: 0; pointer-events: none; z-index: 15; }
+    .horizontal-grid .hline { position: absolute; left: 0; right: 0; height: 1.5px; background: var(--grid-horizontal); }
+
+    /* Marcador de referencia */
+    .ref-point {
+      position: fixed; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--ref-color);
+      box-shadow: 0 0 0 2px rgba(42,157,143,0.35), 0 1px 4px rgba(0,0,0,0.25);
+      transform: translate(-50%, -50%);
+      z-index: 30; pointer-events: none;
+    }
+    .ref-point.ref2 {
+      background: var(--ref2-color);
+      box-shadow: 0 0 0 2px rgba(231,111,81,0.35), 0 1px 4px rgba(0,0,0,0.25);
+      animation: ping 1.6s ease-in-out infinite;
+    }
+    .ref-label {
+      position: fixed; font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: #0b3d3a; background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(42,157,143,0.4); border-radius: 4px; padding: 2px 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 31; pointer-events: none;
+      transform: translate(8px, 8px);
+    }
+    .ref-label.ref2 {
+      color: #5a1f12; border-color: rgba(231,111,81,0.4);
+    }
+    .ref-point.ref3 {
+      background: var(--ref3-color);
+      box-shadow: 0 0 0 2px rgba(108,92,231,0.35), 0 1px 4px rgba(0,0,0,0.25);
+      animation: ping 2s ease-in-out infinite;
+    }
+    .ref-label.ref3 { color: #2a235e; border-color: rgba(108,92,231,0.4); }
+    .ref-point.ref4 {
+      background: var(--ref4-color);
+      box-shadow: 0 0 0 2px rgba(31,122,235,0.35), 0 1px 4px rgba(0,0,0,0.25);
+      animation: ping 1.8s ease-in-out infinite;
+    }
+    .ref-label.ref4 { color: #123a6b; border-color: rgba(31,122,235,0.4); }
+    .ref-point.ref0 {
+      background: var(--ref0-color);
+      box-shadow: 0 0 0 2px rgba(230,57,70,0.35), 0 1px 4px rgba(0,0,0,0.25);
+    }
+    .ref-label.ref0 { color: #5e1015; border-color: rgba(230,57,70,0.4); }
+    .ref-point.ref5 {
+      background: var(--ref5-color);
+      box-shadow: 0 0 0 2px rgba(14,173,105,0.35), 0 1px 4px rgba(0,0,0,0.25);
+      animation: ping 1.6s ease-in-out infinite;
+    }
+    .ref-label.ref5 { color: #0a4a34; border-color: rgba(14,173,105,0.4); }
+
+    /* Conector entre P1 y P2 */
+    .ref-connector {
+      position: fixed; height: 2px; background: rgba(231,111,81,0.8);
+      transform-origin: 0 50%; z-index: 25; pointer-events: none;
+    }
+
+    @keyframes ping {
+      0% { box-shadow: 0 0 0 2px rgba(231,111,81,0.35), 0 1px 4px rgba(0,0,0,0.25); }
+      50% { box-shadow: 0 0 0 10px rgba(231,111,81,0.10), 0 1px 4px rgba(0,0,0,0.25); }
+      100% { box-shadow: 0 0 0 2px rgba(231,111,81,0.35), 0 1px 4px rgba(0,0,0,0.25); }
+    }
+
+    /* Overlay para arcos */
+    .arc-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 22; }
+    .arc-path {
+      fill: none; stroke: rgba(17,24,39,0.85); stroke-width: 2.5px;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="navbar">
+      <div class="brand">
+        <a class="brand-link" aria-label="Inicio"><img src="assets/img/logoGD.svg" alt="Logo final" /></a>
+      </div>
+      <div></div>
+    </div>
+  </header>
+
+  <!-- Medianeras PF (viewport) -->
+  <div id="pfAxisY" class="pf-axis-y"></div>
+  <div id="pfAxisX" class="pf-axis-x"></div>
+
+  <!-- Retícula vertical -->
+  <div id="vgrid" class="vertical-grid"></div>
+  <!-- Retícula horizontal -->
+  <div id="hgrid" class="horizontal-grid"></div>
+
+  <!-- Marcador de referencia -->
+  <div id="refPoint0" class="ref-point ref0" title="Punto inicial (PI)"></div>
+  <div id="refLabel0" class="ref-label ref0"></div>
+  <div id="refPoint" class="ref-point" title="Punto de referencia"></div>
+  <div id="refLabel" class="ref-label"></div>
+  <div id="refPoint2" class="ref-point ref2" title="Punto secundario"></div>
+  <div id="refLabel2" class="ref-label ref2"></div>
+  <div id="refPoint3" class="ref-point ref3" title="Punto terciario"></div>
+  <div id="refLabel3" class="ref-label ref3"></div>
+  <div id="refPoint4" class="ref-point ref4" title="Punto final (PF)"></div>
+  <div id="refLabel4" class="ref-label ref4"></div>
+  <div id="refPoint35" class="ref-point ref5" title="Punto intermedio (P35)"></div>
+  <div id="refLabel35" class="ref-label ref5"></div>
+  <div id="refConnector" class="ref-connector"></div>
+  <div id="refConnector2" class="ref-connector"></div>
+  <div id="refConnector3" class="ref-connector"></div>
+
+  <!-- SVG overlay para arcos suaves -->
+  <svg id="arcOverlay" class="arc-overlay" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <path id="arcPath" class="arc-path" d="" />
+  </svg>
+
+  <div class="stage" id="stage">
+    <!-- Medianeras PI (stage) -->
+    <div class="axis-pi-x"></div>
+    <div class="axis-pi-y"></div>
+
+    <div class="logo-inicial">
+      <img src="assets/img/logoGD.svg" alt="Logo inicial" />
+    </div>
+  </div>
+
+  <script>
+    function positionPfAxes(){
+      const img = document.querySelector('.brand img');
+      const axY = document.getElementById('pfAxisY');
+      const axX = document.getElementById('pfAxisX');
+      if(!img || !axY || !axX) return;
+      const r = img.getBoundingClientRect();
+      const cx = r.left + r.width/2;
+      const cy = r.top + r.height/2;
+      axY.style.left = cx + 'px';
+      axX.style.top  = cy + 'px';
+
+      // Construir retícula vertical a partir de la distancia entre PI.x y PF.x, con 4 divisiones
+  const vgrid = document.getElementById('vgrid');
+  const hgrid = document.getElementById('hgrid');
+      if(vgrid) vgrid.innerHTML = '';
+      if(hgrid) hgrid.innerHTML = '';
+
+      const stage = document.getElementById('stage');
+      const sRect = stage.getBoundingClientRect();
+      const piX = sRect.left + sRect.width/2; // eje vertical PI en viewport
+      const dx = Math.abs(cx - piX);
+      const step = dx / 4; // 4 divisiones entre PI y PF
+
+      // Lado PI->PF (derecha o izquierda según corresponda)
+      const dir = (cx >= piX) ? 1 : -1;
+      if(vgrid && dx >= 1){
+        for(let i=1; i<4; i++){ // líneas intermedias 1..3
+          const x = piX + dir * step * i;
+          const line = document.createElement('div');
+          line.className = 'vline';
+          line.style.left = x + 'px';
+          vgrid.appendChild(line);
+        }
+        // PF ya está marcado por su eje; opcional duplicar línea en PF:
+        const pfLine = document.createElement('div');
+        pfLine.className = 'vline';
+        pfLine.style.left = cx + 'px';
+        vgrid.appendChild(pfLine);
+
+        // Trasladar el patrón al otro lado del logo central (simetría respecto a PI)
+        for(let i=1; i<=4; i++){ // incluye el simétrico del PF
+          const x = piX - dir * step * i;
+          const line = document.createElement('div');
+          line.className = 'vline';
+          line.style.left = x + 'px';
+          vgrid.appendChild(line);
+        }
+      }
+
+      // ================== HORIZONTAL (3 divisiones por lado) ==================
+      const piY = sRect.top + sRect.height/2; // eje horizontal PI en viewport
+      
+      // ================== MARCADOR P0 (PI - centro inicial) ==================
+      const ref0 = document.getElementById('refPoint0');
+      const lab0 = document.getElementById('refLabel0');
+      if(ref0){
+        ref0.style.left = piX + 'px';
+        ref0.style.top  = piY + 'px';
+      }
+      if(lab0){
+        lab0.textContent = 'P0: PI (centro)';
+        lab0.style.left = piX + 'px';
+        lab0.style.top  = piY + 'px';
+      }
+
+      const dy = Math.abs(cy - piY);
+      if(hgrid && dy >= 1){
+        const stepY = dy / 3; // 3 divisiones
+        const dirY = (cy >= piY) ? 1 : -1;
+        // PI -> PF intermedias (1..3)
+        for(let i=1; i<=3; i++){
+          const y = piY + dirY * stepY * i;
+          const line = document.createElement('div');
+          line.className = 'hline';
+          line.style.top = y + 'px';
+          hgrid.appendChild(line);
+        }
+        // Línea en PF
+        const pfH = document.createElement('div');
+        pfH.className = 'hline';
+        pfH.style.top = cy + 'px';
+        hgrid.appendChild(pfH);
+        // Patrón espejado al otro lado de PI (3 líneas + simétrica de PF)
+        for(let i=1; i<=3; i++){
+          const y = piY - dirY * stepY * i;
+          const line = document.createElement('div');
+          line.className = 'hline';
+          line.style.top = y + 'px';
+          hgrid.appendChild(line);
+        }
+      }
+
+      // ================== MARCADOR DE REFERENCIA ==================
+      // Desplazamientos en unidades de retícula: X (4 divisiones), Y (3 divisiones)
+      const refUnitsX = -1.682; // hacia la izquierda
+      const refUnitsY = 1;      // hacia abajo
+      const unitX = (dx >= 1) ? (dx / 4) : 0;
+      const unitY = (dy >= 1) ? (dy / 3) : 0;
+      const refX = piX + refUnitsX * unitX;
+      const refY = piY + refUnitsY * unitY;
+      const ref = document.getElementById('refPoint');
+      const lab = document.getElementById('refLabel');
+      if(ref){
+        ref.style.left = refX + 'px';
+        ref.style.top  = refY + 'px';
+      }
+      if(lab){
+        lab.textContent = '(-1.682, +1)';
+        lab.style.left = refX + 'px';
+        lab.style.top  = refY + 'px';
+      }
+
+      // ================== SEGUNDO MARCADOR: al centro (PI.x) y al borde inferior del plano visual ==================
+      const markerRadius = 5; // px (ref-point is 10x10)
+      const ref2X = piX; // centrado bajo el logo central
+      const ref2Y = Math.max(0, window.innerHeight - markerRadius); // borde inferior (dejando el punto visible)
+      const ref2 = document.getElementById('refPoint2');
+      const lab2 = document.getElementById('refLabel2');
+      if(ref2){
+        ref2.style.left = ref2X + 'px';
+        ref2.style.top  = ref2Y + 'px';
+      }
+      if(lab2){
+        lab2.textContent = 'P2: centro abajo (borde inferior)';
+        lab2.style.left = ref2X + 'px';
+        lab2.style.top  = ref2Y + 'px';
+      }
+
+      // (Ocultamos conectores rectos para no duplicar con arcos)
+      const conn = document.getElementById('refConnector');
+      if(conn) conn.style.display = 'none';
+
+      // ================== TERCER MARCADOR: alineado al centro horizontal, derecha 3 ==================
+      const ref3X = piX + 3 * unitX; // 3 unidades a la derecha desde el centro PI.x
+      const ref3Y = piY;             // alineado a la medianera horizontal (centro)
+      const ref3 = document.getElementById('refPoint3');
+      const lab3 = document.getElementById('refLabel3');
+      if(ref3){
+        ref3.style.display = '';
+        ref3.style.left = ref3X + 'px';
+        ref3.style.top  = ref3Y + 'px';
+      }
+      if(lab3){
+        lab3.style.display = '';
+        lab3.textContent = 'P3: centro horizontal; →3';
+        lab3.style.left = ref3X + 'px';
+        lab3.style.top  = ref3Y + 'px';
+      }
+      // ================== CONECTOR VISUAL ENTRE P2 Y P3 ==================
+      const conn2 = document.getElementById('refConnector2');
+      if(conn2) conn2.style.display = 'none';
+
+      // ================== CUARTO MARCADOR (PF): centro del logo final ==================
+      const ref4X = cx;
+      const ref4Y = cy;
+      const ref4 = document.getElementById('refPoint4');
+      const lab4 = document.getElementById('refLabel4');
+      if(ref4){
+        ref4.style.left = ref4X + 'px';
+        ref4.style.top  = ref4Y + 'px';
+      }
+      if(lab4){
+        lab4.textContent = 'P4: centro PF';
+        lab4.style.left = ref4X + 'px';
+        lab4.style.top  = ref4Y + 'px';
+      }
+
+      // ================== PUNTO INTERMEDIO P35 ==================
+      // "en el centro arriba del logo a medio punto de la horizontal de P4"
+      // Interpretación corregida: mismo X que el logo central (PI.x),
+      // Y = P4.y + 0.25 * unidad vertical (más cerca de la horizontal de P4)
+      const ref35X = piX;
+      const quarterUnitY = (dy >= 1) ? (unitY * 0.25) : 0;
+      const ref35Y = ref4Y + quarterUnitY;
+      const ref35 = document.getElementById('refPoint35');
+      const lab35 = document.getElementById('refLabel35');
+      if(ref35){
+        ref35.style.display = 'none';
+        ref35.style.left = ref35X + 'px';
+        ref35.style.top  = ref35Y + 'px';
+      }
+      if(lab35){
+        lab35.style.display = 'none';
+        lab35.textContent = 'P35: centro PI.x, 0.25↓ de P4';
+        lab35.style.left = ref35X + 'px';
+        lab35.style.top  = ref35Y + 'px';
+      }
+
+      // ================== CONECTOR VISUAL ENTRE P3 Y P4 ==================
+      const conn3 = document.getElementById('refConnector3');
+      if(conn3) conn3.style.display = 'none';
+
+      // ================== ARCOS SUAVES PI->P1->P2->P3->P35->P4 ==================
+      const points = [
+        {x: piX, y: piY},    // P0: centro PI
+        {x: refX,  y: refY}, // P1
+        {x: ref2X, y: ref2Y},// P2
+        {x: ref3X, y: ref3Y},// P3
+        {x: ref35X, y: ref35Y}, // P35
+        {x: ref4X, y: ref4Y} // P4
+      ];
+      const arcPath = document.getElementById('arcPath');
+      const svg = document.getElementById('arcOverlay');
+      if(arcPath && svg){
+        // Ajustar viewBox a pixeles del viewport para usar coords absolutas
+        const vb = `0 0 ${window.innerWidth} ${window.innerHeight}`;
+        svg.setAttribute('viewBox', vb);
+
+        // Generar path usando arcos circulares por tramo, respetando límites tangenciales
+        const d = circularArcsPath(points, piX, piY);
+        arcPath.setAttribute('d', d);
+      }
+    }
+
+    // Construye un path con arcos con tangentes específicas en cada punto
+    function circularArcsPath(pts, piX, piY){
+      if(!pts || pts.length === 0) return '';
+      if(pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+
+      let d = `M ${pts[0].x} ${pts[0].y}`;
+      
+      // Definir tangentes de salida específicas para cada punto
+      // P0 -> P1: sale horizontal derecha, llega vertical abajo
+      // P1 -> P2: sale vertical abajo, llega horizontal derecha
+      // P2 -> P3: sale horizontal derecha, llega vertical arriba
+      // P3 -> P35: sale vertical arriba, llega horizontal derecha
+      // P35 -> P4: sale horizontal derecha, llega horizontal (hacia logo final)
+      
+      const tangents = [
+        {exit: {x: 1, y: 0}},   // P0: sale horizontal derecha
+        {exit: {x: 0, y: 1}},   // P1: sale vertical abajo
+        {exit: {x: 1, y: 0}},   // P2: sale horizontal derecha
+        {exit: {x: 0, y: -1}},  // P3: sale vertical arriba
+        {exit: {x: 1, y: 0}},   // P35: sale horizontal derecha
+        null                     // P4: punto final
+      ];
+
+      for(let i=0; i<pts.length-1; i++){
+        const p1 = pts[i];
+        const p2 = pts[i+1];
+        const t1 = tangents[i].exit;
+        
+        // Determinar tangente de llegada al siguiente punto
+        let t2;
+        if(i === 0){
+          t2 = {x: 0, y: 1};  // P1: llega vertical abajo
+        } else if(i === 1){
+          t2 = {x: 1, y: 0};  // P2: llega horizontal derecha
+        } else if(i === 2){
+          t2 = {x: 0, y: -1}; // P3: llega vertical arriba
+        } else if(i === 3){
+          t2 = {x: 1, y: 0};  // P35: llega horizontal derecha
+        } else if(i === 4){
+          t2 = {x: 1, y: 0};  // P4: llega horizontal derecha (estricto)
+        }
+
+        const arcData = computeTangentArcWithBoth(p1, p2, t1, t2, i);
+        d += arcData.path;
+      }
+      return d;
+    }
+
+    // Calcula un arco circular con tangentes específicas en ambos extremos
+    // Usa curvas de Bézier para aproximar cuando las tangentes están muy restringidas
+    function computeTangentArcWithBoth(p1, p2, t1, t2, segmentIndex){
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const chord = Math.hypot(dx, dy);
+      
+      if(chord < 1){
+        return {path: ` L ${p2.x} ${p2.y}`};
+      }
+
+      // Normalizar tangentes
+      const t1len = Math.hypot(t1.x, t1.y);
+      const t2len = Math.hypot(t2.x, t2.y);
+      const tx1 = t1.x / t1len;
+      const ty1 = t1.y / t1len;
+      const tx2 = t2.x / t2len;
+      const ty2 = t2.y / t2len;
+
+      // Usar curva de Bézier cúbica para conectar con tangentes controladas
+      let controlDist1 = chord * 0.5;
+      let controlDist2 = chord * 0.5;
+      
+      // Para el arco P3->P35 (i==3) y P35->P4 (i==4), contener y respetar tangencias deseadas
+      if(segmentIndex === 3 || segmentIndex === 4){
+        const margin = 1;
+        const dxAbs = Math.max(margin, Math.abs(p2.x - p1.x));
+        const dyAbs = Math.max(margin, Math.abs(p1.y - p2.y));
+
+        if(segmentIndex === 3){
+          // P3→P35: arco circular real con radio constante REDUCIDO
+          // Sale tangente vertical hacia arriba desde P3, llega tangente horizontal hacia la derecha a P35
+          
+          const dx = p2.x - p1.x; // P35 está a la derecha de P3
+          const dy = p2.y - p1.y; // P35 está abajo de P3
+          
+          // Radio reducido al 75% de la distancia P3→P35 para cerrar más el arco
+          const chordDist = Math.hypot(dx, dy);
+          const R = chordDist * 0.75;
+          
+          // Sweep=0 para curvatura hacia el exterior (izquierda/arriba)
+          const sweep = 0;
+          const largeArc = 0; // arco menor de 180°
+          
+          return { path: ` A ${R} ${R} 0 ${largeArc} ${sweep} ${p2.x} ${p2.y}` };
+        } else {
+          // Tramo P35->P4: mantener salida y llegada horizontales (sin cambiarlas),
+          // y hacer el arco más armonioso ajustando distancias en X y una panza sutil en Y.
+          const dir = Math.sign(p2.x - p1.x) || 1; // +1 si P4 está a la derecha; -1 si a la izquierda
+          const t1x = 0.382; // proporciones armónicas
+          const t2x = 0.618;
+
+          // Distancias verticales para micro panza
+          const c1yOffset = dyAbs * 0.20; // 20% del delta vertical
+          const c2yOffset = dyAbs * 0.30; // 30% del delta vertical
+
+          // Control 1: tangencia horizontal en P35 con leve descenso
+          let c1x = p1.x + dir * (dxAbs * t1x);
+          let c1y = p1.y + c1yOffset;
+
+          // Control 2: a la izquierda de P4 con leve descenso
+          let c2x = p2.x - (dxAbs * t2x);
+          let c2y = p2.y + c2yOffset;
+
+          // Clamps: no cruzar la vertical de P4; asegurar orden de control points
+          if(dir > 0){
+            // P35 a la izquierda, ir hacia la derecha
+            c1x = Math.max(c1x, p1.x + margin);
+            c2x = Math.min(c2x, p2.x - margin);
+            if(c1x > c2x) c1x = Math.max(p1.x + margin, c2x - margin*0.5);
+          } else {
+            // P35 a la derecha, ir hacia la izquierda
+            c1x = Math.min(c1x, p1.x - margin);
+            c2x = Math.max(c2x, p2.x + margin);
+            if(c1x < c2x) c1x = Math.min(p1.x - margin, c2x + margin*0.5);
+          }
+
+          return { path: ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}` };
+        }
+      }
+      
+      const c1x = p1.x + tx1 * controlDist1;
+      const c1y = p1.y + ty1 * controlDist1;
+      const c2x = p2.x - tx2 * controlDist2;
+      const c2y = p2.y - ty2 * controlDist2;
+
+      return {
+        path: ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`
+      };
+    }
+
+    // Calcula un arco circular que parte de p1 con tangente t1 y llega a p2
+    // Devuelve el path SVG y la tangente de salida en p2
+    function computeTangentArc(p1, p2, t1, segmentIndex){
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const chord = Math.hypot(dx, dy);
+      
+      // Normalizar tangente de entrada
+      const tLen = Math.hypot(t1.x, t1.y);
+      const tx = t1.x / tLen;
+      const ty = t1.y / tLen;
+
+      // Vector perpendicular a la tangente (normal, hacia el centro del arco)
+      const nx = -ty;
+      const ny = tx;
+
+      // El centro está sobre la perpendicular desde p1: C = p1 + d * (nx, ny)
+      // Además, |C - p2| = |C - p1| = R
+      // Resolvemos: (p1.x + d*nx - p2.x)^2 + (p1.y + d*ny - p2.y)^2 = d^2
+      const dpx = p1.x - p2.x;
+      const dpy = p1.y - p2.y;
+      // dpx^2 + dpy^2 + 2*d*(dpx*nx + dpy*ny) = 0
+      const dot = dpx*nx + dpy*ny;
+      const d = -(dpx*dpx + dpy*dpy) / (2 * dot);
+
+      if(!isFinite(d) || Math.abs(d) < 1){
+        // fallback a línea recta
+        return {
+          path: ` L ${p2.x} ${p2.y}`,
+          exitTangent: {x: dx/chord, y: dy/chord}
+        };
+      }
+
+      const cx = p1.x + d * nx;
+      const cy = p1.y + d * ny;
+      const R = Math.abs(d);
+
+      // Determinar sweep: tangente en p1 debe coincidir con dirección de rotación
+      const sweep = (d > 0) ? 1 : 0;
+
+      // Large-arc-flag: usamos 0 para arco corto
+      const largeArc = 0;
+
+      // Tangente de salida en p2 (perpendicular al radio en p2, mismo sentido de rotación)
+      const radP2x = p2.x - cx;
+      const radP2y = p2.y - cy;
+      let exitTx = -radP2y / R;
+      let exitTy = radP2x / R;
+      if(d < 0){
+        exitTx = -exitTx;
+        exitTy = -exitTy;
+      }
+
+      return {
+        path: ` A ${R} ${R} 0 ${largeArc} ${sweep} ${p2.x} ${p2.y}`,
+        exitTangent: {x: exitTx, y: exitTy}
+      };
+    }
+    window.addEventListener('load', positionPfAxes);
+    window.addEventListener('resize', () => { setTimeout(positionPfAxes, 50); });
+  </script>
+</body>
+</html>
