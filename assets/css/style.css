@@ -816,7 +816,7 @@ body.page-loaded {
 
 /* Quitamos el desvanecimiento del header para que se perciba el clip-path */
 
-/* Secuencia de despliegue: primero header (izquierda→derecha), luego contenido (máscara diagonal sup-der a inf-izq) */
+/* Secuencia de despliegue: header (izquierda→derecha) */
 /* Estado preparado: header oculto por clip desde la derecha */
 body.header-prep header {
   clip-path: inset(0 100% 0 0);
@@ -827,77 +827,11 @@ body.header-deploy header {
   clip-path: inset(0 0 0 0);
 }
 
-/* Contenido preparado: overlay de máscara diagonal (45° reales) */
+/* Contenido sin transiciones */
 main, footer { 
   position: relative;
   background: var(--background-color);
 }
-
-/* Overlay normal (no debug): cubre el contenido y se retira en diagonal */
-body.diag-on:not(.mask-debug).content-prep main::before,
-body.diag-on:not(.mask-debug).content-prep footer::before,
-body.diag-on:not(.mask-debug).content-deploy main::before,
-body.diag-on:not(.mask-debug).content-deploy footer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 5;
-  background: linear-gradient(135deg, #1a1a1a 50%, transparent 50%);
-  background-repeat: no-repeat;
-  background-size: 120vmax 120vmax; /* cuadrado para 45° exactos */
-  background-position: 100% 0; /* inicio: sup-der */
-}
-
-@keyframes diagReveal {
-  0%   { background-position: 100% 0; }
-  25%  { background-position: 75% 25%; }
-  50%  { background-position: 50% 50%; }
-  75%  { background-position: 25% 75%; }
-  100% { background-position: 0 100%; }
-}
-
-/* Despliegue del contenido: animar el overlay en diagonal (45°) */
-body.diag-on:not(.mask-debug).content-deploy main::before,
-body.diag-on:not(.mask-debug).content-deploy footer::before {
-  animation: diagReveal 1.8s linear forwards;
-}
-
-/* ==========================
-   DEBUG: máscara diagonal a 45° SIN animación, por pasos
-   Agregar en <body> las clases:
-   - mask-debug step-0 | step-1 | step-2 | step-3 | step-4
-   para ver 0%, 25%, 50%, 75%, 100% de revelado.
-   ========================== */
-body.mask-debug main,
-body.mask-debug footer { position: relative; }
-
-body.mask-debug main::before,
-body.mask-debug footer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-  /* Capa que tapa el contenido con el color de fondo actual */
-  background: linear-gradient(135deg, #1a1a1a 50%, transparent 50%);
-  background-repeat: no-repeat;
-  /* Usamos un fondo CUADRADO para que el desplazamiento en X e Y sea en los mismos px → 45° exactos */
-  background-size: var(--mask-size, 120vmax) var(--mask-size, 120vmax);
-  /* Movemos la máscara desde la esquina sup-der hacia abajo-izquierda en longitudes iguales */
-  background-position: calc(100% - var(--d, 0vmax)) var(--d, 0vmax);
-}
-
-/* Pasos exactos a 45° desde sup-der → inf-izq usando longitudes iguales (vmax) */
-body.mask-debug.step-0 { --d: 0vmax; }      /* 0% revelado */
-body.mask-debug.step-1 { --d: 30vmax; }     /* ~25% */
-body.mask-debug.step-2 { --d: 60vmax; }     /* ~50% */
-body.mask-debug.step-3 { --d: 90vmax; }     /* ~75% */
-body.mask-debug.step-4 { --d: 120vmax; }    /* 100% */
-
-/* Si está en modo debug, desactivar la animación para ver solo los pasos */
-body.mask-debug.content-deploy main,
-body.mask-debug.content-deploy footer { animation: none !important; }
 
 @media (max-width: 768px) {
   .navbar {

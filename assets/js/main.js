@@ -196,32 +196,13 @@ document.addEventListener('DOMContentLoaded', () => {
                   const prop = tev.propertyName || '';
                   if (prop !== 'clip-path' && prop !== '-webkit-clip-path') return;
                   document.body.classList.add('content-deploy');
-                  // Limpieza: si no está activo el reveal diagonal (sin overlay), limpiamos rápido;
-                  // si está activo (body.diag-on), esperamos al fin de la animación 'diagReveal'.
-                  const mainEl = document.querySelector('main');
-                  const finalizeCleanup = () => {
+                  // Limpieza simple sin esperar eventos del contenido
+                  setTimeout(() => {
                     document.body.classList.remove('nav-prepare');
                     document.body.classList.remove('header-prep');
                     document.body.classList.remove('content-prep');
                     clearTimeout(watchdog);
-                  };
-                  const diagOn = document.body.classList.contains('diag-on');
-                  if (!diagOn) {
-                    // No hay overlay animado: dejar el home limpio inmediatamente
-                    setTimeout(finalizeCleanup, 200);
-                  } else if (mainEl) {
-                    const onContentAnimEnd = (aev) => {
-                      const name = aev.animationName || '';
-                      if (name !== 'diagReveal') return;
-                      finalizeCleanup();
-                    };
-                    mainEl.addEventListener('animationend', onContentAnimEnd, { once: true });
-                    // Fallback si no llega el evento por algún motivo
-                    setTimeout(finalizeCleanup, 2300);
-                  } else {
-                    // Fallback si no hay main
-                    setTimeout(finalizeCleanup, 1200);
-                  }
+                  }, 200);
                 };
                 headerEl.addEventListener('transitionend', onHeaderTransitionEnd, { once: true });
               } else {
@@ -300,27 +281,4 @@ document.addEventListener('DOMContentLoaded', () => {
       navToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
     });
   }
-
-  // ============================================
-  // DEBUG: Control de pasos para máscara diagonal 45° (sin animación)
-  // Teclas 0..4 cambian step-0..step-4 si 'mask-debug' está presente en el body
-  // Tecla 'm' alterna la clase 'mask-debug'
-  // ============================================
-  const stepClasses = ['step-0','step-1','step-2','step-3','step-4'];
-  const setStep = (n) => {
-    stepClasses.forEach(c => document.body.classList.remove(c));
-    const cls = `step-${n}`;
-    document.body.classList.add(cls);
-  };
-  document.addEventListener('keydown', (e) => {
-    const k = e.key;
-    if (k === 'm' || k === 'M') {
-      document.body.classList.toggle('mask-debug');
-      return;
-    }
-    if (!document.body.classList.contains('mask-debug')) return;
-    if (k >= '0' && k <= '4') {
-      setStep(k);
-    }
-  });
 });
