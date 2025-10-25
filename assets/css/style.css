@@ -27,9 +27,9 @@
   --header-padding-x-desktop: 3rem;
   --header-padding-x-tablet: 1rem;
   --header-padding-x-mobile: 0.75rem;
-  --header-padding-y-desktop: 1rem;
-  --header-padding-y-tablet: 0.6rem;
-  --header-padding-y-mobile: 0.5rem;
+  --header-padding-y-desktop: 0.12rem;
+  --header-padding-y-tablet: 0.1rem;
+  --header-padding-y-mobile: 0.08rem;
   --loader-initial-size: min(80vw, 400px);
 }
 
@@ -41,7 +41,7 @@
 
 body {
   font-family: var(--font-body);
-  background: var(--background-color);
+  background: #1a1a1a;
   color: var(--text-color);
   line-height: 1.6;
 }
@@ -128,7 +128,9 @@ header {
   z-index: 1000;
   background: rgba(241, 250, 238, 0.95);
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(29, 53, 87, 0.1);
+  box-shadow: 0 2px 12px rgba(29, 53, 87, 0.08);
+  /* Preparar transición de despliegue izquierda→derecha (constante) */
+  transition: clip-path 1s linear;
 }
 
 .navbar {
@@ -187,8 +189,10 @@ header {
 nav ul {
   display: flex;
   list-style: none;
-  gap: 0.8rem;
+  gap: 1.6rem;
   flex-wrap: nowrap;
+  /* Preparado para revelar el menú hacia la derecha al finalizar la animación del logo */
+  transition: transform 600ms ease, opacity 600ms ease;
 }
 
 /* Alineación del nav y offset vertical controlado por --nav-offset */
@@ -265,7 +269,7 @@ nav li.active::after {
     background: transparent;
     box-shadow: none;
     padding: 0;
-    gap: 0.4rem; /* reducido a la mitad para pantallas angostas */
+    gap: 0.8rem; /* duplicado para mantener proporción respecto a desktop */
     white-space: nowrap;
     overflow: hidden;
     justify-content: center;
@@ -300,6 +304,16 @@ nav li.active::after {
   .nav-toggle:focus-visible { transform: scale(1.1); }
 }
 
+/* Desktop: efecto de despliegue hacia la derecha del menú cuando el logo llega a su posición */
+@media (min-width: 769px) {
+  /* Evitar doble animación del nav en desktop: el header ya se revela con clip-path */
+  body.nav-prepare .navbar nav ul,
+  body.header-deploy .navbar nav ul {
+    transform: none;
+    opacity: 1;
+  }
+}
+
 /* Pantallas muy pequeñas: ajustes extras para mantener todo en una línea */
 @media (max-width: 460px) {
   .navbar {
@@ -314,7 +328,7 @@ nav li.active::after {
   }
   
   /* Reducir gap y padding al mínimo */
-  nav ul { gap: 0.25rem; }
+  nav ul { gap: 0.5rem; }
   nav a { 
     padding: 0.3rem 0.15rem;
     font-size: 0.85rem;
@@ -800,15 +814,90 @@ body.page-loaded {
   opacity: 1;
 }
 
-/* Header inicialmente oculto durante la carga */
-body:not(.page-loaded) header {
-  opacity: 0;
+/* Quitamos el desvanecimiento del header para que se perciba el clip-path */
+
+/* Secuencia de despliegue: primero header (izquierda→derecha), luego contenido (máscara diagonal sup-der a inf-izq) */
+/* Estado preparado: header oculto por clip desde la derecha */
+body.header-prep header {
+  clip-path: inset(0 100% 0 0);
 }
 
-body.page-loaded header {
-  opacity: 1;
-  transition: opacity 0.5s ease 0.3s;
+/* Despliegue del header: se revela hacia la derecha en ~1s */
+body.header-deploy header {
+  clip-path: inset(0 0 0 0);
 }
+
+/* Contenido preparado: overlay de máscara diagonal (45° reales) */
+main, footer { 
+  position: relative;
+  background: var(--background-color);
+}
+
+/* Overlay normal (no debug): cubre el contenido y se retira en diagonal */
+body.diag-on:not(.mask-debug).content-prep main::before,
+body.diag-on:not(.mask-debug).content-prep footer::before,
+body.diag-on:not(.mask-debug).content-deploy main::before,
+body.diag-on:not(.mask-debug).content-deploy footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(135deg, #1a1a1a 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-size: 120vmax 120vmax; /* cuadrado para 45° exactos */
+  background-position: 100% 0; /* inicio: sup-der */
+}
+
+@keyframes diagReveal {
+  0%   { background-position: 100% 0; }
+  25%  { background-position: 75% 25%; }
+  50%  { background-position: 50% 50%; }
+  75%  { background-position: 25% 75%; }
+  100% { background-position: 0 100%; }
+}
+
+/* Despliegue del contenido: animar el overlay en diagonal (45°) */
+body.diag-on:not(.mask-debug).content-deploy main::before,
+body.diag-on:not(.mask-debug).content-deploy footer::before {
+  animation: diagReveal 1.8s linear forwards;
+}
+
+/* ==========================
+   DEBUG: máscara diagonal a 45° SIN animación, por pasos
+   Agregar en <body> las clases:
+   - mask-debug step-0 | step-1 | step-2 | step-3 | step-4
+   para ver 0%, 25%, 50%, 75%, 100% de revelado.
+   ========================== */
+body.mask-debug main,
+body.mask-debug footer { position: relative; }
+
+body.mask-debug main::before,
+body.mask-debug footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  /* Capa que tapa el contenido con el color de fondo actual */
+  background: linear-gradient(135deg, #1a1a1a 50%, transparent 50%);
+  background-repeat: no-repeat;
+  /* Usamos un fondo CUADRADO para que el desplazamiento en X e Y sea en los mismos px → 45° exactos */
+  background-size: var(--mask-size, 120vmax) var(--mask-size, 120vmax);
+  /* Movemos la máscara desde la esquina sup-der hacia abajo-izquierda en longitudes iguales */
+  background-position: calc(100% - var(--d, 0vmax)) var(--d, 0vmax);
+}
+
+/* Pasos exactos a 45° desde sup-der → inf-izq usando longitudes iguales (vmax) */
+body.mask-debug.step-0 { --d: 0vmax; }      /* 0% revelado */
+body.mask-debug.step-1 { --d: 30vmax; }     /* ~25% */
+body.mask-debug.step-2 { --d: 60vmax; }     /* ~50% */
+body.mask-debug.step-3 { --d: 90vmax; }     /* ~75% */
+body.mask-debug.step-4 { --d: 120vmax; }    /* 100% */
+
+/* Si está en modo debug, desactivar la animación para ver solo los pasos */
+body.mask-debug.content-deploy main,
+body.mask-debug.content-deploy footer { animation: none !important; }
 
 @media (max-width: 768px) {
   .navbar {

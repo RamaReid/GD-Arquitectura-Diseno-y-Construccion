@@ -4,6 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   const loader = document.querySelector('.loader-overlay');
   const loaderDiv = document.querySelector('.loader');
+  // Preparar estados: nav comprimido, header y contenido listos para desplegarse en secuencia
+  if (loader) {
+    document.body.classList.add('nav-prepare');
+    document.body.classList.add('header-prep');
+    document.body.classList.add('content-prep');
+  }
   
   // Secuencia de animación al cargar
   window.addEventListener('load', () => {
@@ -162,16 +168,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Animación con easing suave
             loaderDiv.style.animation = 'moveToHeaderDynamic 2s ease-in-out forwards';
+
+            // Watchdog/fallback: si algo falla y no llega el evento, revelamos todo igual
+            const safeFinalize = () => {
+              document.body.classList.add('header-deploy');
+              document.body.classList.add('page-loaded');
+              document.body.classList.add('content-deploy');
+              document.body.classList.remove('nav-prepare','header-prep','content-prep');
+              loader.classList.add('hidden');
+            };
+            const watchdog = setTimeout(safeFinalize, 5000); // 5s después de iniciar el movimiento
+
+            // Disparar despliegue del header exactamente al terminar la animación del logo
+            const onMoveEnd = (ev) => {
+              if (ev.animationName !== 'moveToHeaderDynamic') return;
+              // Fase 4.1: Despliegue del header (izquierda→derecha) y habilitar visibilidad general
+              document.body.classList.add('header-deploy');
+              document.body.classList.add('page-loaded');
+              // Comenzar a desvanecer el overlay para que el despliegue del header sea visible
+              loader.classList.add('hidden');
+
+              // Al terminar el despliegue del header, desplegar contenido (top-left → bottom-right)
+              const headerEl = document.querySelector('header');
+              if (headerEl) {
+                const onHeaderTransitionEnd = (tev) => {
+                  // Asegurar que reaccionamos al fin de clip-path del header
+                  const prop = tev.propertyName || '';
+                  if (prop !== 'clip-path' && prop !== '-webkit-clip-path') return;
+                  document.body.classList.add('content-deploy');
+                  // Limpieza: si no está activo el reveal diagonal (sin overlay), limpiamos rápido;
+                  // si está activo (body.diag-on), esperamos al fin de la animación 'diagReveal'.
+                  const mainEl = document.querySelector('main');
+                  const finalizeCleanup = () => {
+                    document.body.classList.remove('nav-prepare');
+                    document.body.classList.remove('header-prep');
+                    document.body.classList.remove('content-prep');
+                    clearTimeout(watchdog);
+                  };
+                  const diagOn = document.body.classList.contains('diag-on');
+                  if (!diagOn) {
+                    // No hay overlay animado: dejar el home limpio inmediatamente
+                    setTimeout(finalizeCleanup, 200);
+                  } else if (mainEl) {
+                    const onContentAnimEnd = (aev) => {
+                      const name = aev.animationName || '';
+                      if (name !== 'diagReveal') return;
+                      finalizeCleanup();
+                    };
+                    mainEl.addEventListener('animationend', onContentAnimEnd, { once: true });
+                    // Fallback si no llega el evento por algún motivo
+                    setTimeout(finalizeCleanup, 2300);
+                  } else {
+                    // Fallback si no hay main
+                    setTimeout(finalizeCleanup, 1200);
+                  }
+                };
+                headerEl.addEventListener('transitionend', onHeaderTransitionEnd, { once: true });
+              } else {
+                // Fallback si no encontramos header: desplegar contenido tras 1s
+                setTimeout(() => {
+                  document.body.classList.add('content-deploy');
+                  const finalizeCleanup = () => {
+                    document.body.classList.remove('nav-prepare');
+                    document.body.classList.remove('header-prep');
+                    document.body.classList.remove('content-prep');
+                    clearTimeout(watchdog);
+                  };
+                  setTimeout(finalizeCleanup, 1200);
+                }, 1000);
+              }
+            };
+            loaderDiv.addEventListener('animationend', onMoveEnd, { once: true });
           }
           
-          setTimeout(() => {
-            // Fase 4: Fade in del body y ocultar loader
-            document.body.classList.add('page-loaded');
-            
-            setTimeout(() => {
-              loader.classList.add('hidden');
-            }, 500);
-          }, 2000);
         }, 1600);
       }, 2800);
     }
@@ -231,4 +300,27 @@ document.addEventListener('DOMContentLoaded', () => {
       navToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
     });
   }
+
+  // ============================================
+  // DEBUG: Control de pasos para máscara diagonal 45° (sin animación)
+  // Teclas 0..4 cambian step-0..step-4 si 'mask-debug' está presente en el body
+  // Tecla 'm' alterna la clase 'mask-debug'
+  // ============================================
+  const stepClasses = ['step-0','step-1','step-2','step-3','step-4'];
+  const setStep = (n) => {
+    stepClasses.forEach(c => document.body.classList.remove(c));
+    const cls = `step-${n}`;
+    document.body.classList.add(cls);
+  };
+  document.addEventListener('keydown', (e) => {
+    const k = e.key;
+    if (k === 'm' || k === 'M') {
+      document.body.classList.toggle('mask-debug');
+      return;
+    }
+    if (!document.body.classList.contains('mask-debug')) return;
+    if (k >= '0' && k <= '4') {
+      setStep(k);
+    }
+  });
 });
