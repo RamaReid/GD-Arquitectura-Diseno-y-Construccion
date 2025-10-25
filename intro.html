@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intro | ADC</title>
+  <style>
+    html, body { margin:0; padding:0; height:100%; background:#0a0a0a; overflow:hidden; }
+    .intro-canvas { position:fixed; inset:0; display:block; width:100%; height:100%; }
+    .fade-overlay { position:fixed; inset:0; background:#0a0a0a; opacity:0; pointer-events:none; transition: opacity 1s ease; }
+    .fade-overlay.show { opacity: 1; }
+    .hint { position:fixed; bottom:12px; right:12px; color:#888; font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; opacity:0.6; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <div class="fade-overlay" id="fade"></div>
+  <canvas class="intro-canvas" id="introCanvas"></canvas>
+  <div class="hint">Intro 3D • presiona Esc para omitir</div>
+  <script src="assets/js/intro.js"></script>
+</body>
+</html>

@@ -31,6 +31,17 @@
   --header-padding-y-tablet: 0.1rem;
   --header-padding-y-mobile: 0.08rem;
   --loader-initial-size: min(80vw, 400px);
+
+  /* Parámetros de la cortina diagonal (reveal del home) */
+  /* Ángulo de la diagonal: 45deg = de arriba-derecha a abajo-izquierda */
+  --wipe-angle: 135deg;
+  /* Distancia de retiro a lo largo del eje X rotado: negativa = hacia abajo-izquierda con 45deg */
+  --wipe-distance: 220vmax;
+  /* Duración y curva */
+  --wipe-duration: 2.6s;
+  --wipe-ease: cubic-bezier(0.3, 0, 0.2, 1);
+  /* Color temporal para depurar la cobertura */
+  --wipe-color: #1a1a1a;
 }
 
 * {
@@ -617,6 +628,55 @@ textarea {
   justify-content: center;
   position: relative;
   will-change: transform;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+.loader svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform;
+  position: relative;
+  z-index: 2; /* el logo por encima de las sombras */
+}
+
+/* Sombra/volumen independiente para simular profundidad sin tocar trazos */
+.loader .petal-shadow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 72%;
+  height: 60%;
+  border-radius: 50% 54% 50% 46% / 50% 46% 50% 54%; /* forma orgánica de pétalo */
+  background: radial-gradient(ellipse at 40% 45%, rgba(0,0,0,0.35), rgba(0,0,0,0.0) 60%);
+  filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity, filter;
+  z-index: 1;
+}
+
+/* Sombra de núcleo: más cerrada, nítida cuando está cerca del suelo, se desvanece cuando está alto */
+.loader .petal-shadow-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 58%;
+  height: 48%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 42% 48%, rgba(0,0,0,0.6), rgba(0,0,0,0.0) 50%);
+  filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity, filter;
+  z-index: 1;
 }
 
 /* Animación de latido del corazón */
@@ -710,6 +770,8 @@ textarea {
   width: 100%;
   height: auto;
   overflow: visible;
+  transform-origin: 50% 50%;
+  will-change: transform;
 }
 
 /* Estilos para el logo animado */
@@ -827,10 +889,50 @@ body.header-deploy header {
   clip-path: inset(0 0 0 0);
 }
 
-/* Contenido sin transiciones */
-main, footer { 
+/* Asegurar transición del header para disparar transitionend */
+header {
+  transition: clip-path 1s linear;
+}
+
+/* Contenido: revelado diagonal desde esquina superior derecha (cortina con transform) */
+main, footer {
   position: relative;
   background: var(--background-color);
+  overflow: hidden; /* necesario para cortar la cortina al salir */
+}
+
+/* Hoja/cortina: pseudo-elemento que cubre y se retira en diagonal */
+body.content-prep main::before,
+body.content-prep footer::before,
+body.content-deploy main::before,
+body.content-deploy footer::before {
+  content: "";
+  position: absolute;
+  /* Cortina enorme centrada para garantizar cobertura total */
+  left: 50%;
+  top: 50%;
+  width: 200vmax;
+  height: 200vmax;
+  z-index: 50; /* asegurar que quede sobre el contenido del main */
+  background: var(--wipe-color);
+  pointer-events: none;
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform var(--wipe-duration) var(--wipe-ease);
+}
+
+/* Estado inicial: cortina cubre todo (inclinada) */
+body.content-prep main::before,
+body.content-prep footer::before {
+  /* Cortina en reposo: centrada, cubierta total, rotada 45° */
+  transform: translate(-50%, -50%) rotate(var(--wipe-angle)) translateX(0);
+}
+
+/* Estado desplegado: cortina se retira hacia abajo-izquierda */
+body.content-deploy main::before,
+body.content-deploy footer::before {
+  /* Retirar la cortina moviéndola a lo largo de su eje X (rotada 45°) */
+  transform: translate(-50%, -50%) rotate(var(--wipe-angle)) translateX(var(--wipe-distance));
 }
 
 @media (max-width: 768px) {
