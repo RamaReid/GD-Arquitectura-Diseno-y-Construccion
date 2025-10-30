@@ -33,14 +33,14 @@
   --loader-initial-size: min(80vw, 400px);
 
   /* Parámetros de la cortina diagonal (reveal del home) */
-  /* Ángulo de la diagonal: 45deg = de arriba-derecha a abajo-izquierda */
+  /* Ángulo de la diagonal: 135deg = de arriba-derecha a abajo-izquierda */
   --wipe-angle: 135deg;
-  /* Distancia de retiro a lo largo del eje X rotado: negativa = hacia abajo-izquierda con 45deg */
+  /* Distancia de retiro a lo largo del eje X rotado: negativa = hacia abajo-izquierda */
   --wipe-distance: 220vmax;
-  /* Duración y curva */
+  /* Duración y curva de animación */
   --wipe-duration: 2.6s;
-  --wipe-ease: cubic-bezier(0.3, 0, 0.2, 1);
-  /* Color temporal para depurar la cobertura */
+  --wipe-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Color de cortina */
   --wipe-color: #1a1a1a;
 }
 
@@ -50,11 +50,37 @@
   padding: 0;
 }
 
+html {
+  background: #f1faee;
+  min-height: 100vh;
+}
+
+html::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../img/Gadehause/GADEHAUSE%20plano.svg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: sepia(0.85) contrast(1.1);
+  opacity: 0.13;
+  pointer-events: none;
+  transform: scale(0);
+  transform-origin: center center;
+  transition: opacity 0.8s ease, transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 body {
   font-family: var(--font-body);
-  background: #1a1a1a;
   color: var(--text-color);
   line-height: 1.6;
+  min-height: 100vh;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 /* Global typography - apply chosen fonts consistently across the project */
@@ -65,6 +91,7 @@ html, body, input, textarea, button, select {
 h1, h2, h3, h4, h5, h6, .brand .title {
   font-family: var(--font-heading);
   font-weight: var(--fw-regular);
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
 }
 
 /* Ensure navigation, footer and common UI elements inherit the site body font */
@@ -137,11 +164,36 @@ header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(241, 250, 238, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 12px rgba(29, 53, 87, 0.08);
+  background: #f1faee;
+  box-shadow: none;
   /* Preparar transición de despliegue izquierda→derecha (constante) */
   transition: clip-path 1s linear;
+  overflow: hidden;
+}
+
+/* Mostrar la porción del plano que corresponde al header */
+header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100%;
+  background-image: url('../img/Gadehause/GADEHAUSE%20plano.svg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: sepia(0.85) contrast(1.1);
+  opacity: 0.13;
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 0.8s ease;
+}
+
+/* Asegurar que el header muestre el fondo en páginas secundarias */
+body.secondary-page header::before {
+  opacity: 0.13 !important;
 }
 
 .navbar {
@@ -430,13 +482,13 @@ nav li.active::after {
   background: white;
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 25px 50px rgba(29, 53, 87, 0.12);
+  box-shadow: 0 8px 24px rgba(29, 53, 87, 0.15), 0 2px 6px rgba(29, 53, 87, 0.1);
   transition: transform var(--transition-speed), box-shadow var(--transition-speed);
 }
 
 .card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 30px 60px rgba(29, 53, 87, 0.18);
+  box-shadow: 0 20px 40px rgba(29, 53, 87, 0.22), 0 4px 12px rgba(29, 53, 87, 0.15);
 }
 
 .card img {
@@ -601,13 +653,67 @@ textarea {
 .loader-overlay {
   position: fixed;
   inset: 0;
-  background: var(--background-color);
+  background: #f1faee;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
+  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+              visibility 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   pointer-events: none;
+}
+
+/* Plano arquitectónico en el loader: existe siempre; se revela con apertura radial */
+.loader-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../img/Gadehause/GADEHAUSE%20plano.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: sepia(0.85) contrast(1.1);
+  opacity: 0; /* oculto hasta que inicie la apertura radial */
+  clip-path: circle(0% at 50% 50%); /* máscara circular cerrada */
+  z-index: -1;
+}
+
+/* Apertura radial progresiva desde el centro durante los latidos */
+.loader-overlay.radial-open::before {
+  animation: radialReveal 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes radialReveal {
+  0%   { 
+    clip-path: circle(0% at 50% 50%); 
+    opacity: 0;
+  }
+  0.1% {
+    opacity: 0.13;
+  }
+  100% { 
+    clip-path: circle(150% at 50% 50%); 
+    opacity: 0.13;
+  }
+}
+
+/* Ocultar fondo arquitectónico durante el loader en home */
+html.loader-active::before {
+  opacity: 0;
+  transform: scale(0);
+}
+
+/* Revelar fondo gradualmente desde el centro cuando late el logo */
+html.background-reveal::before {
+  opacity: 0.13;
+  transform: scale(1);
+}
+
+/* Mostrar fondo inmediatamente en páginas secundarias */
+body.secondary-page ~ html::before,
+html:has(body.secondary-page)::before {
+  opacity: 0.13 !important;
+  transform: scale(1) !important;
 }
 
 .loader-overlay.hidden {
@@ -679,9 +785,9 @@ textarea {
   z-index: 1;
 }
 
-/* Animación de latido del corazón */
+/* Animación de latido del corazón: 2 latidos suaves en 1.6s */
 .loader.heartbeat {
-  animation: heartbeat 0.8s ease-in-out 2;
+  animation: heartbeat 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 /* Transición hacia el header con trayectoria en arco */
@@ -752,18 +858,94 @@ textarea {
   0%, 100% {
     transform: scale(1);
   }
-  14% {
+  20% {
     transform: scale(1.15);
   }
-  28% {
+  40% {
     transform: scale(1);
   }
-  42% {
+  60% {
     transform: scale(1.15);
   }
-  56% {
+  80% {
     transform: scale(1);
   }
+}
+
+/* Animaciones de sombras durante los latidos */
+@keyframes shadowLifeAmbient {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate3d(-6px, 12px, 0) scale(0.96);
+    filter: blur(10px);
+  }
+  20% {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) translate3d(-8px, 13px, 0) scale(1.06);
+    filter: blur(14px);
+  }
+  40% {
+    opacity: 0.18;
+    transform: translate(-50%, -50%) translate3d(-7px, 12px, 0) scale(0.98);
+    filter: blur(10px);
+  }
+  60% {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) translate3d(-9px, 14px, 0) scale(1.06);
+    filter: blur(14px);
+  }
+  80% {
+    opacity: 0.20;
+    transform: translate(-50%, -50%) translate3d(-7px, 12px, 0) scale(0.99);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 0.18;
+    transform: translate(-50%, -50%) translate3d(-6px, 12px, 0) scale(0.98);
+    filter: blur(10px);
+  }
+}
+
+@keyframes shadowLifeCore {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate3d(-3px, 7px, 0) scale(0.94);
+    filter: blur(3px);
+  }
+  20% {
+    opacity: 0.60;
+    transform: translate(-50%, -50%) translate3d(-4px, 8px, 0) scale(1.02);
+    filter: blur(6px);
+  }
+  40% {
+    opacity: 0.30;
+    transform: translate(-50%, -50%) translate3d(-3px, 7px, 0) scale(0.96);
+    filter: blur(3px);
+  }
+  60% {
+    opacity: 0.60;
+    transform: translate(-50%, -50%) translate3d(-5px, 9px, 0) scale(1.02);
+    filter: blur(6px);
+  }
+  80% {
+    opacity: 0.32;
+    transform: translate(-50%, -50%) translate3d(-3px, 7px, 0) scale(0.96);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 0.26;
+    transform: translate(-50%, -50%) translate3d(-3px, 7px, 0) scale(0.96);
+    filter: blur(3px);
+  }
+}
+
+/* Aplicar animaciones de sombra cuando inicia el latido */
+.loader.heartbeat .petal-shadow {
+  animation: shadowLifeAmbient 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.loader.heartbeat .petal-shadow-core {
+  animation: shadowLifeCore 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .loader svg {
@@ -891,14 +1073,21 @@ body.header-deploy header {
 
 /* Asegurar transición del header para disparar transitionend */
 header {
-  transition: clip-path 1s linear;
+  transition: clip-path 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Contenido: revelado diagonal desde esquina superior derecha (cortina con transform) */
 main, footer {
   position: relative;
-  background: var(--background-color);
+  background: transparent;
   overflow: hidden; /* necesario para cortar la cortina al salir */
+  z-index: 1; /* Asegurar que quede debajo del header sticky */
+}
+
+/* Asegurar que el fondo está visible desde el principio, antes de las animaciones */
+body.content-prep main,
+body.content-prep footer {
+  background: transparent;
 }
 
 /* Hoja/cortina: pseudo-elemento que cubre y se retira en diagonal */
@@ -933,6 +1122,105 @@ body.content-deploy main::before,
 body.content-deploy footer::before {
   /* Retirar la cortina moviéndola a lo largo de su eje X (rotada 45°) */
   transform: translate(-50%, -50%) rotate(var(--wipe-angle)) translateX(var(--wipe-distance));
+}
+
+/* ============================================
+   NAVEGACIÓN DE PROYECTOS (ANTERIOR/SIGUIENTE)
+   ============================================ */
+.project-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 900;
+  display: flex;
+  gap: 1rem;
+}
+
+.project-nav.nav-prev {
+  left: 3.5rem;
+}
+
+.project-nav.nav-next {
+  right: 3.5rem;
+}
+
+.project-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: var(--primary-color);
+  box-shadow: none;
+  padding: 0;
+}
+
+.project-nav-btn:hover {
+  background: transparent;
+  transform: scale(1.1);
+  box-shadow: none;
+}
+
+.project-nav-btn svg {
+  width: 100%;
+  height: 100%;
+  transition: filter 0.25s ease;
+}
+
+/* Halo sutil en hover y foco accesible */
+.project-nav-btn:hover svg,
+.project-nav-btn:focus-visible svg {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9))
+          drop-shadow(0 0 2px rgba(0, 0, 0, 0.25));
+}
+
+/* Efecto hover: agrandar la G en botón izquierdo */
+.project-nav.nav-prev .project-nav-btn:hover #letra-g-interior,
+.project-nav.nav-prev .project-nav-btn:hover #letra-g-exterior {
+  transform: scale(1.35);
+  transform-origin: center;
+}
+
+/* Efecto hover: agrandar la D en botón derecho */
+.project-nav.nav-next .project-nav-btn:hover #letra-d {
+  transform: scale(1.35);
+  transform-origin: center;
+}
+
+/* Transición suave para las letras */
+#letra-g-interior,
+#letra-g-exterior,
+#letra-d {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Responsive: mover botones a la parte inferior en móviles */
+@media (max-width: 768px) {
+  .project-nav {
+    position: fixed;
+    top: auto;
+    bottom: 2.5rem;
+    transform: none;
+  }
+  
+  .project-nav.nav-prev {
+    left: 2rem;
+  }
+  
+  .project-nav.nav-next {
+    right: 2rem;
+  }
+  
+  .project-nav-btn {
+    width: 64px;
+    height: 64px;
+  }
 }
 
 @media (max-width: 768px) {

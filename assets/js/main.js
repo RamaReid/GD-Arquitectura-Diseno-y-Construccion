@@ -5,53 +5,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const loader = document.querySelector('.loader-overlay');
   const loaderDiv = document.querySelector('.loader');
   
-  // Preparar estados: nav comprimido, header y contenido listos para desplegarse en secuencia
+  // Detectar si estamos en la página de inicio
+  const isHomePage = window.location.pathname === '/' || 
+                     window.location.pathname.endsWith('/index.html') ||
+                     window.location.pathname === '/index.html';
+  
+  // Preparar estados iniciales: navegación comprimida, header y contenido listos para desplegarse
   if (loader) {
     document.body.classList.add('nav-prepare');
     document.body.classList.add('header-prep');
     document.body.classList.add('content-prep');
+    // Ocultar fondo arquitectónico durante el loader (solo en home)
+    if (isHomePage) {
+      document.documentElement.classList.add('loader-active');
+    }
   }
   
-  // Secuencia de animación al cargar
+  // Secuencia de animación al cargar la página
   window.addEventListener('load', () => {
     if (loader && loaderDiv) {
-      // Fase 1: Animación completa del logo (~2.8s)
-      setTimeout(() => {
-        // Fase 2: Latido del corazón (2 latidos, ~1.6s)
-        loaderDiv.classList.add('heartbeat');
-        // Sombra "vida": pulso sincronizado con el latido antes del vuelo
-        (function(){
-          const shadowEl = loaderDiv.querySelector('.petal-shadow');
-          const shadowCore = loaderDiv.querySelector('.petal-shadow-core');
-          const lifeStyle = document.getElementById('dynamic-shadow-life');
-          if (!lifeStyle) {
-            let lifeKF = '@keyframes shadowLifeAmbient {\n';
-            lifeKF += '  0% { opacity: 0.00; transform: translate(-50%, -50%) translate3d(-6px, 12px, 0px) scale(0.96); filter: blur(10px); }\n';
-            lifeKF += '  12.5% { opacity: 0.35; transform: translate(-50%, -50%) translate3d(-8px, 13px, 0px) scale(1.06); filter: blur(14px); }\n';
-            lifeKF += '  25% { opacity: 0.18; transform: translate(-50%, -50%) translate3d(-7px, 12px, 0px) scale(0.98); filter: blur(10px); }\n';
-            lifeKF += '  50% { opacity: 0.35; transform: translate(-50%, -50%) translate3d(-9px, 14px, 0px) scale(1.06); filter: blur(14px); }\n';
-            lifeKF += '  75% { opacity: 0.20; transform: translate(-50%, -50%) translate3d(-7px, 12px, 0px) scale(0.99); filter: blur(10px); }\n';
-            lifeKF += '  100% { opacity: 0.18; transform: translate(-50%, -50%) translate3d(-6px, 12px, 0px) scale(0.98); filter: blur(10px); }\n';
-            lifeKF += '}\n';
-            lifeKF += '@keyframes shadowLifeCore {\n';
-            lifeKF += '  0% { opacity: 0.00; transform: translate(-50%, -50%) translate3d(-3px, 7px, 0px) scale(0.94); filter: blur(3px); }\n';
-            lifeKF += '  12.5% { opacity: 0.60; transform: translate(-50%, -50%) translate3d(-4px, 8px, 0px) scale(1.02); filter: blur(6px); }\n';
-            lifeKF += '  25% { opacity: 0.30; transform: translate(-50%, -50%) translate3d(-3px, 7px, 0px) scale(0.96); filter: blur(3px); }\n';
-            lifeKF += '  50% { opacity: 0.60; transform: translate(-50%, -50%) translate3d(-5px, 9px, 0px) scale(1.02); filter: blur(6px); }\n';
-            lifeKF += '  75% { opacity: 0.32; transform: translate(-50%, -50%) translate3d(-3px, 7px, 0px) scale(0.96); filter: blur(3px); }\n';
-            lifeKF += '  100% { opacity: 0.26; transform: translate(-50%, -50%) translate3d(-3px, 7px, 0px) scale(0.96); filter: blur(3px); }\n';
-            lifeKF += '}';
-            const styleEl = document.createElement('style');
-            styleEl.id = 'dynamic-shadow-life';
-            styleEl.textContent = lifeKF;
-            document.head.appendChild(styleEl);
-          }
-          if (shadowEl) shadowEl.style.animation = 'shadowLifeAmbient 1.6s ease-in-out forwards';
-          if (shadowCore) shadowCore.style.animation = 'shadowLifeCore 1.6s ease-in-out forwards';
-        })();
-        
+      // Páginas internas: animación simplificada
+      if (!isHomePage) {
         setTimeout(() => {
-          // Fase 3: Calcular posición exacta y mover logo al header siguiendo el camino planificado
+          // Revelar header y contenido inmediatamente después del dibujo del logo
+          document.body.classList.add('header-deploy');
+          document.body.classList.add('page-loaded');
+          document.body.classList.add('content-deploy');
+          loader.classList.add('hidden');
+          
+          // Limpiar estados de preparación
+          setTimeout(() => {
+            document.body.classList.remove('nav-prepare', 'header-prep', 'content-prep');
+          }, 1000);
+        }, 1500);
+        return;
+      }
+      
+      // ANIMACIÓN COMPLETA (SOLO HOME):
+      // Fase 1: Dibujo del logo (2.8s)
+      setTimeout(() => {
+        // Fase 2: Apertura radial del fondo + latidos del corazón (1.6s)
+        loader.classList.add('radial-open');
+        loaderDiv.classList.add('heartbeat');
+        document.documentElement.classList.add('background-reveal');
+        
+        // Fase 3: Vuelo del logo hacia el header
+        setTimeout(() => {
           const logoHeader = document.querySelector('.brand img');
           if (logoHeader) {
             const loaderRect = loaderDiv.getBoundingClientRect();
@@ -197,8 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (oldStyle) oldStyle.remove();
             document.head.appendChild(keyframesStyle);
 
-            // Animación con easing suave (trayectoria) - un poco más larga para apreciar el arco
-            loaderDiv.style.animation = 'moveToHeaderDynamic 2.3s ease-in-out forwards';
+            // Animación con curva de easing suave y natural
+            loaderDiv.style.animation = 'moveToHeaderDynamic 2.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
 
             // Activar sombra volumétrica independiente para dar profundidad sin deformar trazos
             const shadowEl = loaderDiv.querySelector('.petal-shadow');
@@ -416,6 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const forceDeploy = setTimeout(() => {
                   if (fired) return;
                   document.body.classList.add('content-deploy');
+                  // Fondo ya revelado en el latido
+                  document.documentElement.classList.remove('loader-active');
                   // Limpieza alineada con la cortina (2.8s)
                   setTimeout(() => {
                     document.body.classList.remove('nav-prepare');
@@ -431,6 +432,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   fired = true;
                   clearTimeout(forceDeploy);
                   document.body.classList.add('content-deploy');
+                  // Fondo ya revelado en el latido
+                  document.documentElement.classList.remove('loader-active');
                   // Pseudo-elementos no emiten transitionend: limpiar por tiempo
                   setTimeout(() => {
                     document.body.classList.remove('nav-prepare');
@@ -444,6 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fallback si no encontramos header: desplegar contenido tras 1s
                 setTimeout(() => {
                   document.body.classList.add('content-deploy');
+                  // Fondo ya revelado en el latido
+                  document.documentElement.classList.remove('loader-active');
                   const finalizeCleanup = () => {
                     document.body.classList.remove('nav-prepare');
                     document.body.classList.remove('header-prep');
