@@ -23,9 +23,25 @@
     })();
   </script>
   <link rel="stylesheet" href="assets/css/style.css?v=1.9">
+  <style>
+    /* Hero full-screen for first image (override minimal rules to ensure 100vh behavior) */
+  .hero { min-height: 100vh; position: relative; overflow: hidden; padding: 0; max-width: none; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); margin-top: calc(-1 * var(--header-height)); padding-top: var(--header-height); }
+    /* Ensure the carousel container fills the viewport and ignores default height/padding */
+    .hero .hero-carousel { position: relative; width: 100%; height: 100vh; min-height: 100vh; }
+    .hero .slide { position: absolute; inset: 0; }
+    .hero .slide img { width: 100vw; height: 100vh; object-fit: cover; display: block; }
+    /* keep controls visible on top of image */
+    .hero .controls { position: absolute; z-index: 30; right: 1rem; bottom: 1rem; }
+    /* small helper: ensure the copy that follows sits visually after the full-bleed hero */
+    .hero-copy { padding: 3.2rem 1.6rem; max-width: 1200px; margin: 0 auto; }
+    /* Override any external hero grid rules that could push the image down (desktop grid) */
+    .hero.magazine-spread { display: block; }
+  </style>
+  <!-- Preload primer hero para evitar CLS -->
+  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=1600&q=80">
   <link rel="icon" href="assets/img/LogoGD.svg" type="image/svg+xml">
 </head>
-<body>
+<body class="home">
   <div class="loader-overlay">
     <div class="loader" role="status" aria-label="Cargando">
       <svg viewBox="0 0 210 170">
@@ -97,79 +113,89 @@
   </header>
 
   <main>
-    <section class="hero">
-      <div>
-        <h1>Diseñamos y construimos hogares que inspiran</h1>
-        <p>
-          Combinamos arquitectura de autor con procesos constructivos eficientes para crear espacios a medida,
-          confortables y sostenibles. Acompañamos cada proyecto desde la idea inicial hasta la entrega de llaves.
-        </p>
-        <a class="btn" href="projects.html">Ver proyectos destacados</a>
+  <!-- Hero (imagen a pantalla completa: primera foto 100vh) -->
+  <section class="hero magazine-spread">
+    <!-- Hero carousel: primera imagen ocupa todo el viewport -->
+    <div class="hero-carousel" role="region" aria-roledescription="carousel" aria-label="Proyectos destacados" tabindex="0">
+      <picture class="slide" role="group" aria-roledescription="slide" aria-label="Casa moderna" data-caption="Casa moderna">
+        <img src="https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=1600&q=80"
+             srcset="https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=800&q=80 800w, https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=1200&q=80 1200w, https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=1600&q=80 1600w"
+             sizes="100vw"
+             alt="Casa moderna" loading="eager">
+      </picture>
+      <picture class="slide" role="group" aria-roledescription="slide" aria-label="Interior luminoso" data-caption="Interior luminoso">
+        <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1600&q=80"
+             srcset="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=800&q=80 800w, https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1200&q=80 1200w, https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1600&q=80 1600w"
+             sizes="100vw"
+             alt="Interior luminoso" loading="lazy">
+      </picture>
+      <picture class="slide" role="group" aria-roledescription="slide" aria-label="Arquitectura en paisaje" data-caption="Arquitectura en paisaje">
+        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80"
+             srcset="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80 800w, https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80 1200w, https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80 1600w"
+             sizes="100vw"
+             alt="Arquitectura en paisaje" loading="lazy">
+      </picture>
+      <div class="controls" aria-hidden="false">
+        <button class="pause-btn" title="Pausar" aria-label="Pausar carrusel">❚❚</button>
+        <button class="play-btn" title="Reanudar" aria-label="Reanudar carrusel" style="display:none;">▶</button>
       </div>
-      <div>
-        <img src="https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=900&q=80" alt="Casa moderna con iluminación cálida" style="width:100%;border-radius:24px;box-shadow:0 25px 60px rgba(0,0,0,0.18);">
-      </div>
-    </section>
+      <div class="sr-status" aria-live="polite" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Slide 1 de 3</div>
+    </div>
+  </section>
 
-    <section class="section">
-      <p class="section-title">Nuestros servicios</p>
-      <h2>Soluciones integrales de arquitectura y construcción</h2>
-      <div class="card-grid">
-        <article class="card">
-          <img src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80" alt="Plano arquitectónico">
-          <div class="card-content">
-            <h3>Diseño arquitectónico</h3>
-            <p>Proyectos residenciales personalizados, con énfasis en la integración con el entorno y la vida cotidiana.</p>
-          </div>
-        </article>
-        <article class="card">
-          <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=800&q=80" alt="Equipo trabajando en oficina">
-          <div class="card-content">
-            <h3>Dirección y gestión</h3>
-            <p>Coordinamos disciplinas, presupuesto y cronograma para garantizar calidad y cumplimiento.</p>
-          </div>
-        </article>
-        <article class="card">
-          <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80" alt="Obra en construcción">
-          <div class="card-content">
-            <h3>Construcción llave en mano</h3>
-            <p>Nos ocupamos de todo el proceso constructivo con equipos certificados y proveedores confiables.</p>
-          </div>
-        </article>
-      </div>
-    </section>
+  <!-- Copy editorial: queda después del hero para respetar la primera foto a pantalla completa -->
+  <section class="hero-copy">
+    <div class="copy mag-copy">
+      <h1 class="fade-in-up">Diseñamos y construimos hogares que inspiran</h1>
+      <p class="fade-in-up" style="animation-delay: 0.2s;">Más de diez años acompañando el habitar familiar. Aquí empieza tu casa.</p>
+      <a class="btn fade-in-up" href="projects.html" style="animation-delay: 0.4s;">Ver proyectos</a>
+    </div>
+  </section>
 
-    <section class="section" style="background:white;border-radius:32px;padding:4rem 3rem;box-shadow:0 30px 60px rgba(29,53,87,0.15);">
-      <p class="section-title">Experiencias ADC</p>
-      <h2>Vivir la casa soñada</h2>
-      <div class="info-grid">
-        <div>
-          <p>
-            Cada proyecto es una conversación profunda con nuestros clientes. Exploramos estilos de vida, necesidades y
-            expectativas para entregar espacios que emocionan desde el primer día.
-          </p>
-          <p style="margin-top:1rem;">
-            Con más de 10 años de experiencia y más de 40 viviendas construidas, nuestra visión se centra en la innovación,
-            la sustentabilidad y el diseño contemporáneo.
-          </p>
+    <!-- Bloques bajo el hero: ahora agrupados en un grid de 2-3 columnas para alinear con el footer -->
+    <div class="below-hero-grid">
+      <section class="section magazine-block living" style="align-items:center;">
+        <div class="mag-media mag-65">
+          <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80" alt="Casa luminosa" loading="lazy">
         </div>
-        <div>
-          <ul class="values-list">
-            <li>
-              <strong>Co-creación</strong>
-              Diseñamos junto a nuestros clientes, con procesos colaborativos y transparentes.
-            </li>
-            <li>
-              <strong>Eficiencia energética</strong>
-              Incorporamos soluciones pasivas y tecnología para minimizar el consumo y el impacto ambiental.
-            </li>
-            <li>
-              <strong>Calidad comprobada</strong>
-              Materiales seleccionados y supervisión constante en cada etapa de la obra.
-            </li>
-          </ul>
+        <div class="mag-copy mag-35">
+          <p class="section-title">Living</p>
+          <h2>Casas luminosas para la vida cotidiana</h2>
+          <p>Proyectos que priorizan la luz natural, la relación con el jardín y la calidez de los materiales. Imágenes que invitan a imaginar la vida dentro de la casa.</p>
+          <a class="btn" href="projects.html" style="margin-top:1rem;">Ver casas luminosas</a>
         </div>
-      </div>
+      </section>
+
+      <section class="section magazine-block dnd" style="align-items:center;">
+        <div class="mag-copy mag-40">
+          <p class="section-title">D&amp;D</p>
+          <h2>Obras refinadas y de autor</h2>
+          <p>Proyectos con cuidado compositivo, atención al detalle material y una paleta neutra que resalta objetos y geometrías interiores.</p>
+          <a class="btn" href="projects.html" style="margin-top:1rem;">Ver obras de autor</a>
+        </div>
+        <div class="mag-media mag-60">
+          <img src="https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=1400&q=80" alt="Interior editorial" loading="lazy">
+        </div>
+      </section>
+
+      <section class="section magazine-block oasiss" style="align-items:center;">
+        <div class="mag-media mag-80">
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80" alt="Arquitectura en paisaje" loading="lazy">
+        </div>
+        <div class="mag-copy mag-20">
+          <p class="section-title">Oasiss</p>
+          <h2>Arquitectura en su paisaje</h2>
+          <p>Proyectos que dialogan con el entorno, donde la imagen de contexto es parte de la narrativa del habitar.</p>
+          <a class="btn" href="projects.html" style="margin-top:1rem;">Explorar proyectos en paisaje</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Pequeña sección de cierre emocional (outro) -->
+    <section class="section" style="padding-top:0;">
+      <p class="section-title">Aquí viene el sol</p>
+      <h2>La arquitectura no se explica: se respira</h2>
+      <p style="max-width:760px;color:var(--light-text);">Más que planos y materiales, buscamos construir espacios que acompañen la vida. Descubrí nuestros proyectos y sentí el ritmo.</p>
     </section>
   </main>
 
@@ -195,6 +221,84 @@
     <p style="text-align:center;margin-top:2rem;font-size:0.9rem;color:rgba(255,255,255,0.7);">© <span data-current-year></span> Arquitectura Diseño y Construcción. Todos los derechos reservados.</p>
   </footer>
 
+  <script>
+    (function(){
+      const carousel = document.querySelector('.hero-carousel');
+      if(!carousel) return;
+      const slides = Array.from(carousel.querySelectorAll('.slide'));
+      if(slides.length === 0) return;
+      let idx = 0;
+      let interval = null;
+      const delay = 4500;
+      const status = carousel.querySelector('.sr-status');
+
+      function updateStatus(){ if(status) status.textContent = `Slide ${idx+1} de ${slides.length}`; }
+
+      function show(i){
+        slides.forEach((s, j) => {
+          s.classList.toggle('active', j === i);
+          s.setAttribute('aria-hidden', j === i ? 'false' : 'true');
+          s.setAttribute('tabindex', j === i ? '0' : '-1');
+        });
+        idx = i;
+        updateStatus();
+      }
+
+      function start(){ stop(); interval = setInterval(()=>{ let next = (idx+1) % slides.length; show(next); }, delay); }
+      function stop(){ if(interval){ clearInterval(interval); interval = null; } }
+
+      // initial show
+      show(0);
+      start();
+
+      const pauseBtn = carousel.querySelector('.pause-btn');
+      const playBtn = carousel.querySelector('.play-btn');
+      if(pauseBtn && playBtn){
+        pauseBtn.addEventListener('click', ()=>{ stop(); pauseBtn.style.display='none'; playBtn.style.display='inline-block'; pauseBtn.setAttribute('aria-pressed','true'); });
+        playBtn.addEventListener('click', ()=>{ start(); playBtn.style.display='none'; pauseBtn.style.display='inline-block'; playBtn.setAttribute('aria-pressed','false'); });
+      }
+
+      // keyboard navigation: left/right arrows to navigate, space to toggle pause
+      carousel.addEventListener('keydown', (e)=>{
+        if(e.key === 'ArrowRight'){ e.preventDefault(); stop(); show((idx+1)%slides.length); }
+        if(e.key === 'ArrowLeft'){ e.preventDefault(); stop(); show((idx-1+slides.length)%slides.length); }
+        if(e.key === ' ' || e.key === 'Spacebar'){ e.preventDefault(); if(interval) { stop(); } else { start(); } }
+      });
+
+      // pause on focus within carousel for accessibility, resume on focusout
+      carousel.addEventListener('focusin', ()=> stop());
+      carousel.addEventListener('focusout', ()=> start());
+
+      // expose small API in DOM for debugging/testing
+      carousel._carousel = { start, stop, show };
+
+      // Reveal magazine spreads when they enter viewport
+      const spreads = document.querySelectorAll('.magazine-spread');
+      if('IntersectionObserver' in window){
+        const io = new IntersectionObserver((entries)=>{
+          entries.forEach(en => { if(en.isIntersecting) en.target.classList.add('in-view'); });
+        }, { threshold: 0.18 });
+        spreads.forEach(s => io.observe(s));
+      } else {
+        spreads.forEach(s => s.classList.add('in-view'));
+      }
+    })();
+  </script>
+  <script>
+    // UI helpers: populate current year and conditionally hide loader on non-home pages
+    (function(){
+      try {
+        // current year
+        document.querySelectorAll('[data-current-year]').forEach(el => el.textContent = new Date().getFullYear());
+
+        // if for any reason this file is used as a secondary page, hide the full loader overlay
+        if(!document.body.classList.contains('home')){
+          const overlay = document.querySelector('.loader-overlay');
+          if(overlay) overlay.style.display = 'none';
+        }
+      } catch(e){}
+    })();
+  </script>
   <script src="assets/js/main.js?v=2.6"></script>
 </body>
 </html>
