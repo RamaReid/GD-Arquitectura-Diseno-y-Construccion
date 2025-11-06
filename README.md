@@ -1,6 +1,6 @@
-# Arquitectura Diseño y Construcción
+# Arquitectura, Diseño y Construcción
 
-Sitio estático que presenta los servicios, proyectos y datos de contacto del estudio ADC.
+Sitio estático que presenta los servicios, proyectos y datos de contacto del estudio GD.
 
 ## Estructura
 - `index.html`: página de inicio con servicios destacados.
